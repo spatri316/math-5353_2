@@ -15,6 +15,17 @@
 // simulation. Option price and Greeks - but not standard error - needs to be
 // returned to the user.
 
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System.Text;
+
+
 namespace MyApp
 {
     class Program{
@@ -23,9 +34,17 @@ namespace MyApp
             // Try and Catch Block to make sure we only get numeric values for steps and simulation
             Console.WriteLine("Change bool call on line 65 to represent call or put. Other variables can be changed from line 59 to 63");
             Console.WriteLine("Do you want antithetic calculation? Type yes, otherwise no");
+            //Console.WriteLine("The number of processors on this computer is {0}.", Environment.ProcessorCount);
+            int num_cores = 0;
+            num_cores = Environment.ProcessorCount;
             String antithetic_user_input = Console.ReadLine();
             String antithetic_user_input_yes = "yes";
             bool antithetic = String.Equals(antithetic_user_input, antithetic_user_input_yes);
+
+            Console.WriteLine("Do you want parallel functionality? Type yes, otherwise no");
+            String parallel = Console.ReadLine();
+            String parallel_user_input_yes = "yes";
+            bool parallel_variate = String.Equals(parallel, parallel_user_input_yes);
 
             Console.WriteLine("Do you want to delta-based control variate functionality? Type yes, otherwise no");
             String control_user_input = Console.ReadLine();
@@ -44,6 +63,8 @@ namespace MyApp
             Console.WriteLine("Provide a choice in number of simulations: ");
             String simulations = Console.ReadLine();
             int simulations_double = 1;
+
+            
     
             try {
                 steps_double = Convert.ToInt32(steps);
@@ -54,6 +75,10 @@ namespace MyApp
                 return;
             }
 
+            
+
+            //Console.WriteLine("Enter slices value: "+ slice);
+
 
             // Change the variables here
             double s=50;
@@ -62,14 +87,17 @@ namespace MyApp
             double t=1;
             double strike = 50;
             //change this for call/put. call = true, put = false
-            bool call = false;
+            bool call = true;
+
+            
 
             // Call and populate the array for random normal paths
             NormalRandomPaths nrp1 = new NormalRandomPaths();
             double[,] random_normal_paths = nrp1.fillRandomPaths(steps_double, simulations_double);
 
             SimulatedPaths sp1 = new SimulatedPaths();
-            double[] simulated_paths = new double[simulations_double];
+            //double[,] simulated_paths = new double[steps_double, simulations_double];
+            double[] end_row = new double[simulations_double];
             double final_value = 0;
             double[] control_variate_value_array = new double[simulations_double];
             double control_variate_value = 0;
@@ -77,13 +105,15 @@ namespace MyApp
             //STANDARD ERROR
             StandardError std_err = new StandardError();
 
-            //antithetic
+            
+           
             if(antithetic) {
                 Console.WriteLine("Antithetic");
-                simulated_paths = sp1.AntitheticFinalCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths);
-                final_value = sp1.finalMean(r,t,simulated_paths);
-                double standard_error_antithetic = std_err.standard_error(simulated_paths);
-                double[] simulated_paths_non_antithetic = sp1.SimulatedPathsCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths);
+                end_row = sp1.AntitheticFinalCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths);
+                final_value = sp1.finalMean(r,t,end_row);
+                double standard_error_antithetic = std_err.standard_error(end_row);
+                var simulated_paths_non_antithetic_grid = sp1.SimulatedPathsCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths);
+                double[] simulated_paths_non_antithetic = sp1.end_values(simulated_paths_non_antithetic_grid.Item1);
                 double standard_error_not_antithetic = std_err.standard_error(simulated_paths_non_antithetic);
 
                 Console.WriteLine("Option Antithetic price is: "+final_value);
@@ -114,15 +144,85 @@ namespace MyApp
             }
 
             else {
-                // get the Option prices of the simulations. (the last step of each simulation)
-                simulated_paths = sp1.SimulatedPathsCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths);
-                //calulate the final calculation by taking a mean of all the option prices and multiply with e^-rt
-                final_value = sp1.finalMean(r,  t, simulated_paths);
-                double standard_error = std_err.standard_error(simulated_paths);
-                Console.WriteLine("Option price is: "+final_value);
-                Console.WriteLine("Standard error is "+ standard_error);
-            } 
+                if(parallel_variate) {
+                    DateTime StartDateTime = DateTime.Now;
+                    Stopwatch stopWatch = new Stopwatch();
 
+                    Console.WriteLine("Parallel For Loop Execution start");
+                    stopWatch.Start();
+
+                    var result_collection = new List<Tuple<double[,], double[,]>>();
+
+                    var random_collection = new List<double[,]>();
+
+                    int slice = (int)Math.Floor((double)simulations_double/num_cores);
+
+                    for(int i = 0; i < num_cores; i++) {
+                        double[,] sliced_array = new double[slice, steps_double];
+                        int a = i*slice;
+                        int b = (i+1)*slice;
+                        int start = 0;
+                        for(int j = a; j < b; j++) {
+                            for (int k = 0; k < steps_double; k++) {
+                                sliced_array[start, k] = random_normal_paths[j, k];
+                            }
+                            start++;
+                        }
+                        random_collection.Add(sliced_array);
+
+                    }
+            
+                    ParallelLoopResult parallel_paths = Parallel.For(0, num_cores, i => {
+                        result_collection.Add(sp1.SimulatedPathsCalculation(s, r, v, t, steps_double, slice, call, strike, random_collection[i]));
+                    });
+
+                   // List<double[,]> sim_paths_final_1 = new List<double[,]>();
+                    //double[,] sim_paths_final_2 = new double[simulations_double, steps_double];
+                   double[,] sim_paths_final = new double[simulations_double, steps_double];
+                    //double[,] temp_1 = new double[slice, steps_double];
+                    double[,] stocks_paths_final = new double[simulations_double, steps_double];
+                    //double[,] temp_2 = new double[slice, steps_double];
+                    //result_collection[1].Item1;
+            
+                    for(int i = 0; i < result_collection.Count; i++) {
+                        //sim_paths_final_1.Add(result_collection[i].Item1);
+                        int a = i*slice;
+                        int b = (i+1)*slice;
+                        int start_in = 0;
+                        for(int j = a; j < b; j++) {
+                            for (int k = 0; k < steps_double; k++) {
+                                sim_paths_final[j, k] = result_collection[i].Item1[start_in, k]; 
+                                stocks_paths_final[j, k] = result_collection[i].Item2[start_in, k]; 
+                            }
+                            start_in++;
+
+                            
+                        }
+                    }
+
+                    var simulated_paths =  new Tuple<double[,], double[,]>(sim_paths_final, stocks_paths_final);
+
+                    end_row = sp1.end_values(simulated_paths.Item1);
+                    //calulate the final calculation by taking a mean of all the option prices and multiply with e^-rt
+                    final_value = sp1.finalMean(r,  t, end_row);
+                    double standard_error = std_err.standard_error(end_row);
+                    Console.WriteLine("Option price is: "+final_value);
+                    Console.WriteLine("Standard error is "+ standard_error);
+
+                    DateTime EndDateTime = DateTime.Now;
+                    Console.WriteLine("Parallel For Loop Execution end ");
+                    stopWatch.Stop();
+                    Console.WriteLine($"Time Taken to Execute Parallel For Loop in miliseconds {stopWatch.ElapsedMilliseconds}");
+                }
+                // var simulated_paths = sp1.SimulatedPathsCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths);
+                // end_row = sp1.end_values(simulated_paths.Item1);
+                // //calulate the final calculation by taking a mean of all the option prices and multiply with e^-rt
+                // final_value = sp1.finalMean(r,  t, end_row);
+                // double standard_error = std_err.standard_error(end_row);
+                // Console.WriteLine("Option price is: "+final_value);
+                // Console.WriteLine("Standard error is "+ standard_error);
+            }
+        
             // THIS SECTION CALLS THE GREEK CLASS FOR EITHER THE ANTITHETIC OR NON ANTITHETIC
             //DELTA
             Greeks greek_methods = new Greeks();
@@ -145,6 +245,8 @@ namespace MyApp
             double rho = greek_methods.rho(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths, antithetic, control_variate, control_variate_antithetic);
             Console.WriteLine("Rho is "+rho);
 
+            //Console.WriteLine("The number of processors on this computer is {0}.", num_cores);
+
         }
     }
 
@@ -152,7 +254,7 @@ namespace MyApp
     public class SimulatedPaths{
 
         //TAKE NORMAL RANDOM PATHS AND GET THE CALCUALTION. STORE THE LAST STEP OF EACH SIMULATION AND RETURN AN ARRAY OF ALL THE VALUES
-        public double[] SimulatedPathsCalculation(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths){
+        public Tuple<double[,], double[,]> SimulatedPathsCalculation(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths){
             
             //variables
             double[,] stock_values = new double[simulation, steps];
@@ -173,6 +275,7 @@ namespace MyApp
                     //formula
                     double steps_calc = t/steps;
                     double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
+                  //double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
                     stock_values[i, j] = value;
                     //calls
                     if(call == true){
@@ -187,13 +290,21 @@ namespace MyApp
                     SimulatedPaths[i,j] = path_val;
                 }
             }
+
+            return new Tuple<double[,], double[,]>(SimulatedPaths, stock_values);
             
             // this for loop retrieves the last value of each step and returns the single dimension array
-            double[] end_values = new double[SimulatedPaths.GetLength(0)];
-            for(int i = 0; i < SimulatedPaths.GetLength(0); i++){
-                end_values[i] = SimulatedPaths[i, (SimulatedPaths.GetLength(1)-1)];
+            
+        }
+
+        public double[] end_values(double[,] simulated_paths) {
+
+            double[] end_values = new double[simulated_paths.GetLength(0)];
+            for(int i = 0; i < simulated_paths.GetLength(0); i++){
+                end_values[i] = simulated_paths[i, (simulated_paths.GetLength(1)-1)];
             }
             return end_values;
+
         }
 
 
@@ -227,8 +338,11 @@ namespace MyApp
             }
 
             // get the option prices for both random normal values
-            double[] e = SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths);
-            double[] e_hat = SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,antithetic_random_normal);
+            var e_paths = SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths);
+            var e_hat_paths = SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,antithetic_random_normal);
+
+            double[] e = end_values(e_paths.Item1);
+            double[] e_hat = end_values(e_hat_paths.Item1);
 
             double[] simulated_antithethic_paths = new double[e.Length];
             
@@ -298,11 +412,13 @@ namespace MyApp
             else{
                  //GET SIMULATED PATHS WITH S_PLUS AND S_MINUS
                 SimulatedPaths path1 = new SimulatedPaths();
-                double[] paths_plus = path1.SimulatedPathsCalculation(s_plus, r, v, t, steps, simulation, call, strike, random_normal_paths);
-                double final_mean_plus = path1.finalMean(r, t, paths_plus);
+                var paths_plus = path1.SimulatedPathsCalculation(s_plus, r, v, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_single = path1.end_values(paths_plus.Item1);
+                double final_mean_plus = path1.finalMean(r, t, paths_single);
 
-                double[] paths_minus = path1.SimulatedPathsCalculation(s_minus, r, v, t, steps, simulation, call, strike, random_normal_paths);
-                double final_mean_minus = path1.finalMean(r, t, paths_minus);
+                var paths_minus = path1.SimulatedPathsCalculation(s_minus, r, v, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_single_minus = path1.end_values(paths_minus.Item1);
+                double final_mean_minus = path1.finalMean(r, t, paths_single_minus);
                 
                 //FINAL FORMULA
                 delta = (final_mean_plus - final_mean_minus)/(2*0.001);
@@ -360,11 +476,13 @@ namespace MyApp
             else{
                 // GET SIMULATED PATHS WITH S_PLUS AND S_MINUS
                 SimulatedPaths path1 = new SimulatedPaths();
-                double[] paths_plus = path1.SimulatedPathsCalculation(s_plus, r, v, t, steps, simulation, call, strike, random_normal_paths);
-                double final_mean_plus = path1.finalMean(r, t, paths_plus);
+                var paths_plus = path1.SimulatedPathsCalculation(s_plus, r, v, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_plus_single = path1.end_values(paths_plus.Item1);
+                double final_mean_plus = path1.finalMean(r, t, paths_plus_single);
 
-                double[] paths_minus = path1.SimulatedPathsCalculation(s_minus, r, v, t, steps, simulation, call, strike, random_normal_paths);
-                double final_mean_minus = path1.finalMean(r, t, paths_minus);
+                var paths_minus = path1.SimulatedPathsCalculation(s_minus, r, v, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_minus_single = path1.end_values(paths_minus.Item1);
+                double final_mean_minus = path1.finalMean(r, t, paths_minus_single);
 
                 gamma = (final_mean_plus + final_mean_minus - 2*final_value)/(Math.Pow((0.001*s),2));
 
@@ -424,10 +542,12 @@ namespace MyApp
             else {
                 // GET SIMULATED PATHS WITH V_PLUS AND V_MINUS
                 SimulatedPaths path1 = new SimulatedPaths();
-                double[] paths_plus = path1.SimulatedPathsCalculation(s, r, v_plus, t, steps, simulation, call, strike, random_normal_paths);
+                var paths_plus_single = path1.SimulatedPathsCalculation(s, r, v_plus, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_plus = path1.end_values(paths_plus_single.Item1);
                 double final_mean_plus = path1.finalMean(r, t, paths_plus);
 
-                double[] paths_minus = path1.SimulatedPathsCalculation(s, r, v_minus, t, steps, simulation, call, strike, random_normal_paths);
+                var paths_minus_single = path1.SimulatedPathsCalculation(s, r, v_minus, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_minus = path1.end_values(paths_minus_single.Item1);
                 double final_mean_minus = path1.finalMean(r, t, paths_minus);
 
                 //FINAL FORMULA
@@ -480,7 +600,8 @@ namespace MyApp
 
             else{
                 SimulatedPaths path1 = new SimulatedPaths();
-                double[] paths_plus = path1.SimulatedPathsCalculation(s, r, v, t_plus, steps, simulation, call, strike, random_normal_paths);
+                var paths_plus_single = path1.SimulatedPathsCalculation(s, r, v, t_plus, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_plus = path1.end_values(paths_plus_single.Item1);
                 double final_mean_plus = path1.finalMean(r, t_plus, paths_plus);
 
                 //final formula
@@ -545,10 +666,12 @@ namespace MyApp
 
             else{
                 SimulatedPaths path1 = new SimulatedPaths();
-                double[] paths_plus = path1.SimulatedPathsCalculation(s, r_plus, v, t, steps, simulation, call, strike, random_normal_paths);
+                var paths_plus_single = path1.SimulatedPathsCalculation(s, r_plus, v, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_plus = path1.end_values(paths_plus_single.Item1);
                 double final_mean_plus = path1.finalMean(r_plus, t, paths_plus);
 
-                double[] paths_minus = path1.SimulatedPathsCalculation(s, r_minus, v, t, steps, simulation, call, strike, random_normal_paths);
+                var paths_minus_single = path1.SimulatedPathsCalculation(s, r_minus, v, t, steps, simulation, call, strike, random_normal_paths);
+                double[] paths_minus = path1.end_values(paths_minus_single.Item1);
                 double final_mean_minus = path1.finalMean(r_minus, t, paths_minus);
 
                 // rho formula
@@ -692,43 +815,34 @@ namespace MyApp
             double delta = 0;
 
             BlackScholes bs = new BlackScholes();
+            SimulatedPaths sp = new SimulatedPaths();
             //NormalRandom nrm = new NormalRandom();
 
-            for(int i = 0; i < simulation; i++){
-                for(int j = 0; j < steps; j++){
-                    stock_values[i, 0] = s;
-                }
-            }    
+            var output = sp.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths);
+            stock_values = output.Item2;
 
             // double for loop to go over each step in every simulation and apply the payoff function
             // A double array is filled in this for loop
             for(int i = 0; i < simulation; i++){
                 double cv = 0;
                 for(int j = 1; j < steps; j++){
-                    //formula
-                    // delta = bs.callDelta(stock_values[i, j-1],r,v,t,strike);
-                    // double steps_calc = t/steps;
-                    // double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
-                    // cv = cv + delta * (value - (stock_values[i, j-1] * Math.Exp(r*steps_calc)));
-                    // stock_values[i, j] = value;
                     //calls
                     if(call == true){
                         delta = bs.callDelta(stock_values[i, j-1],r,v,t,strike);
                         double steps_calc = t/steps;
-                        double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
-                        cv = cv + delta * (value - (stock_values[i, j-1] * Math.Exp(r*steps_calc)));
-                        stock_values[i, j] = value;
-                        subtraction = value - strike;
+                        //double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
+                        cv = cv + (delta * (stock_values[i, j] - (stock_values[i, j-1] * Math.Exp(r*steps_calc))));
+                        subtraction = stock_values[i, j] - strike;
                         path_val = Math.Max(subtraction, 0) + (betal*cv);
                     }
                     //puts
                     else{
                         delta = bs.putDelta(stock_values[i, j-1],r,v,t,strike);
                         double steps_calc = t/steps;
-                        double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
-                        cv = cv + delta * (value - (stock_values[i, j-1] * Math.Exp(r*steps_calc)));
-                        stock_values[i, j] = value;
-                        subtraction =  strike - value;
+                        //double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
+                        cv = cv + delta * (stock_values[i, j] - (stock_values[i, j-1] * Math.Exp(r*steps_calc)));
+                        //stock_values[i, j] = value;
+                        subtraction =  strike - stock_values[i, j];
                         path_val = Math.Max(subtraction, 0) + (betal*cv);
                     }
                     SimulatedPaths[i,j] = path_val;
@@ -739,6 +853,7 @@ namespace MyApp
             double[] end_values = new double[SimulatedPaths.GetLength(0)];
             for(int i = 0; i < SimulatedPaths.GetLength(0); i++){
                 end_values[i] = SimulatedPaths[i, (SimulatedPaths.GetLength(1)-1)];
+                //Console.WriteLine("Control Variate Project 2 "+ end_values[i]);
             }
 
             return end_values;
@@ -762,18 +877,8 @@ namespace MyApp
             BlackScholes bs = new BlackScholes();
             //NormalRandom nrm = new NormalRandom();
 
-            for(int i = 0; i < simulation; i++){
-                for(int j = 0; j < steps; j++){
-                    stock_values_1[i, 0] = s;
-                }
-            }  
-
-            for(int i = 0; i < simulation; i++){
-                for(int j = 0; j < steps; j++){
-                    stock_values_2[i, 0] = s;
-                }
-            }   
-
+            SimulatedPaths sp = new SimulatedPaths();
+            
             // get the random normal values - multiply with -1
             for(int i = 0; i < random_normal_paths.GetLength(0); i++){
                 for(int j = 0; j < random_normal_paths.GetLength(1); j++){
@@ -781,37 +886,32 @@ namespace MyApp
                 }
             }
 
+            var output_1 = sp.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths);
+            stock_values_1 = output_1.Item2;
+
+            var output_2 = sp.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,antithetic_random_normal);
+            stock_values_2 = output_2.Item2;
+
             // double for loop to go over each step in every simulation and apply the payoff function
             // A double array is filled in this for loop
             for(int i = 0; i < simulation; i++){
                 double cv1 = 0;
                 double cv2 = 0;
                 for(int j = 1; j < steps; j++){
-                    //formula
-                    // delta1 = bs.callDelta(stock_values_1[i, j-1],r,v,t,strike);
-                    // delta2 = bs.callDelta(stock_values_2[i, j-1],r,v,t,strike);
-                    // double steps_calc = t/steps;
-                    // double value1 = stock_values_1[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
-                    // double value2 = stock_values_2[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((antithetic_random_normal[i,j] * v * (Math.Sqrt(steps_calc)))));
-                    // cv1 = cv1 + delta1 * (value1 - (stock_values_1[i, j-1] * Math.Exp(r*steps_calc)));
-                    // cv2 = cv2 + delta2 * (value2 - (stock_values_2[i, j-1] * Math.Exp(r*steps_calc)));
-
-                    // stock_values_1[i, j] = value1;
-                    // stock_values_2[i, j] = value2;
                     //calls
                     if(call == true){
                         delta1 = bs.callDelta(stock_values_1[i, j-1],r,v,t,strike);
                         delta2 = bs.callDelta(stock_values_2[i, j-1],r,v,t,strike);
                         double steps_calc = t/steps;
-                        double value1 = stock_values_1[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
-                        double value2 = stock_values_2[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((antithetic_random_normal[i,j] * v * (Math.Sqrt(steps_calc)))));
-                        cv1 = cv1 + delta1 * (value1 - (stock_values_1[i, j-1] * Math.Exp(r*steps_calc)));
-                        cv2 = cv2 + delta2 * (value2 - (stock_values_2[i, j-1] * Math.Exp(r*steps_calc)));
+                        //double value1 = stock_values_1[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
+                        //double value2 = stock_values_2[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((antithetic_random_normal[i,j] * v * (Math.Sqrt(steps_calc)))));
+                        cv1 = cv1 + delta1 * (stock_values_1[i, j] - (stock_values_1[i, j-1] * Math.Exp(r*steps_calc)));
+                        cv2 = cv2 + delta2 * (stock_values_2[i, j] - (stock_values_2[i, j-1] * Math.Exp(r*steps_calc)));
 
-                        stock_values_1[i, j] = value1;
-                        stock_values_2[i, j] = value2;
-                        subtraction1 = value1 - strike;
-                        subtraction2 = value2 - strike;
+                        //stock_values_1[i, j] = value1;
+                        //stock_values_2[i, j] = value2;
+                        subtraction1 = stock_values_1[i, j] - strike;
+                        subtraction2 = stock_values_2[i, j] - strike;
                         path_val = 0.5*(Math.Max(subtraction1, 0) + (betal*cv1) + Math.Max(subtraction2, 0) + (betal*cv2));
                     }
                     //puts
@@ -819,15 +919,15 @@ namespace MyApp
                         delta1 = bs.callDelta(stock_values_1[i, j-1],r,v,t,strike);
                         delta2 = bs.callDelta(stock_values_2[i, j-1],r,v,t,strike);
                         double steps_calc = t/steps;
-                        double value1 = stock_values_1[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
-                        double value2 = stock_values_2[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((antithetic_random_normal[i,j] * v * (Math.Sqrt(steps_calc)))));
-                        cv1 = cv1 + delta1 * (value1 - (stock_values_1[i, j-1] * Math.Exp(r*steps_calc)));
-                        cv2 = cv2 + delta2 * (value2 - (stock_values_2[i, j-1] * Math.Exp(r*steps_calc)));
+                        //double value1 = stock_values_1[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
+                        //double value2 = stock_values_2[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((antithetic_random_normal[i,j] * v * (Math.Sqrt(steps_calc)))));
+                        cv1 = cv1 + delta1 * (stock_values_1[i, j] - (stock_values_1[i, j-1] * Math.Exp(r*steps_calc)));
+                        cv2 = cv2 + delta2 * (stock_values_2[i, j] - (stock_values_2[i, j-1] * Math.Exp(r*steps_calc)));
 
-                        stock_values_1[i, j] = value1;
-                        stock_values_2[i, j] = value2;
-                        subtraction1 =  strike - value1;
-                        subtraction2 =  strike - value2;
+                        //stock_values_1[i, j] = value1;
+                        //stock_values_2[i, j] = value2;
+                        subtraction1 =  strike - stock_values_1[i, j];
+                        subtraction2 =  strike - stock_values_2[i, j];
                         path_val = 0.5*(Math.Max(subtraction1, 0) + (betal*cv1) + Math.Max(subtraction2, 0) + (betal*cv2));
                     }
                     SimulatedPaths[i,j] = path_val;
