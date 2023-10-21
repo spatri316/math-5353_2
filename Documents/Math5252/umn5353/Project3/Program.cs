@@ -420,10 +420,74 @@ namespace MyApp
             double[] max_values = new double[simulation];
             double[] min_values = new double[simulation];
 
-            for(int i )
+            double max_num = Double.MinValue;
+            double min_num = Double.MaxValue;
 
+            for(int i = 0; i < simulation; i++){
+                for(int j = 0; j < steps; j++){
+                    if(max_num < simulated_paths[i,j]) {
+                        max_num = simulated_paths[i,j];
+                    }
+                    else if(min_num > simulated_paths[i,j]) {
+                        min_num = simulated_paths[i,j];
+                    }
+                }
+                max_values[i] = max_num;
+                min_values[i] = min_num;
+            }
 
+            double[] values_payoff = new double[simulation];
             
+            for(int i = 0; i < simulation; i++) {
+                if(call == true) {
+                    values_payoff[i] = max_values[i] - strike;
+                }
+                else {
+                    values_payoff[i] = strike - min_values[i];
+                }
+
+            }
+
+            double final_value = 0;
+            final_value = sp1.finalMean(r, t, values_payoff);
+            return final_value;
+        }
+
+         public double Range(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool antithetic, bool control_variate, bool control_variate_antithetic, bool parallel, double payout) {
+            SimulatedPaths sp1 = new SimulatedPaths();
+            double[,] simulated_paths = new double[simulation, steps];
+            var paths = sp1.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths,parallel);
+            simulated_paths = paths.Item2;
+
+            //max for calls
+            double[] max_values = new double[simulation];
+            double[] min_values = new double[simulation];
+
+            double max_num = Double.MinValue;
+            double min_num = Double.MaxValue;
+
+            for(int i = 0; i < simulation; i++){
+                for(int j = 0; j < steps; j++){
+                    if(max_num < simulated_paths[i,j]) {
+                        max_num = simulated_paths[i,j];
+                    }
+                    else if(min_num > simulated_paths[i,j]) {
+                        min_num = simulated_paths[i,j];
+                    }
+                }
+                max_values[i] = max_num;
+                min_values[i] = min_num;
+            }
+
+            double[] values_payoff = new double[simulation];
+            
+            for(int i = 0; i < simulation; i++) {
+                values_payoff[i] = max_values[i] - min_values[i];
+            }
+
+            double final_value = 0;
+            final_value = sp1.finalMean(r, t, values_payoff);
+            return final_value;
         }
 
     }
