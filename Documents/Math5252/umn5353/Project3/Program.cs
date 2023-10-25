@@ -33,6 +33,22 @@ namespace MyApp
         static void Main(string[] args) {
             // Try and Catch Block to make sure we only get numeric values for steps and simulation
             Console.WriteLine("Change bool call on line 65 to represent call or put. Other variables can be changed from line 59 to 63");
+            
+            Console.WriteLine("Select 1 for Asian, 2 for Digital, 3 for Barrier, 4 for Lookback, 5 for Range");
+            String exotic = Console.ReadLine();
+            String exotic_user_input_asian = "1";
+            String exotic_user_input_digital = "2";
+            String exotic_user_input_barrier = "3";
+            String exotic_user_input_lookback = "4";
+            String exotic_user_input_range = "5";
+            bool exotic_asian = String.Equals(exotic, exotic_user_input_asian);
+            bool exotic_digital = String.Equals(exotic, exotic_user_input_digital);
+            bool exotic_barrier = String.Equals(exotic, exotic_user_input_barrier);
+            bool exotic_lookback = String.Equals(exotic, exotic_user_input_lookback);
+            bool exotic_range = String.Equals(exotic, exotic_user_input_range);
+
+            Console.WriteLine("Select barrier type");
+            String exotic_barrier_type = Console.ReadLine();
 
             Console.WriteLine("Do you want parallel functionality? Type yes, otherwise no");
             String parallel = Console.ReadLine();
@@ -81,17 +97,21 @@ namespace MyApp
             double strike = 50;
             //change this for call/put. call = true, put = false
             bool call = true;
+            double payout = 100;
+            double barrier_level = 30;
 
             // Call and populate the array for random normal paths
             NormalRandomPaths nrp1 = new NormalRandomPaths();
             double[,] random_normal_paths = nrp1.fillRandomPaths(steps_double, simulations_double);
 
             SimulatedPaths sp1 = new SimulatedPaths();
+            ExoticOptions eo1 = new ExoticOptions();
             double[] end_row = new double[simulations_double];
             double final_value = 0;
             double[] control_variate_value_array = new double[simulations_double];
             double control_variate_value = 0;
 
+            double exotic_option_price = 0;
             //STANDARD ERROR
             StandardError std_err = new StandardError();
 
@@ -126,6 +146,26 @@ namespace MyApp
             }
 
             else {
+                if(exotic_asian == true) {
+                    exotic_option_price = eo1.Asian(s, r, v, t, steps_double, simulations_double, call, strike,random_normal_paths, parallel_variate);
+                    Console.WriteLine("Asian Price is: " + exotic_option_price);
+                }
+                else if(exotic_digital == true) {
+                    exotic_option_price = eo1.Digital(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths, parallel_variate, payout);
+                    Console.WriteLine("Digital Price is: " + exotic_option_price);
+                }
+                else if(exotic_barrier == true) {
+                    exotic_option_price = eo1.Barrier(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths, parallel_variate, barrier_level, exotic_barrier_type);
+                    Console.WriteLine("Barrier Price is: " + exotic_option_price);
+                }
+                else if(exotic_lookback == true) {
+                    exotic_option_price = eo1.Lookback(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths, parallel_variate);
+                    Console.WriteLine("Lookback Price is: " + exotic_option_price);
+                }
+                else if(exotic_range == true) {
+                    exotic_option_price = eo1.Range(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths, parallel_variate);
+                    Console.WriteLine("Range Price is: " + exotic_option_price);
+                }
                 var simulated_paths = sp1.SimulatedPathsCalculation(s, r, v, t, steps_double, simulations_double, call, strike, random_normal_paths, parallel_variate);
                 end_row = sp1.end_values(simulated_paths.Item1);
                 //calulate the final calculation by taking a mean of all the option prices and multiply with e^-rt
@@ -206,8 +246,7 @@ namespace MyApp
                 }
             }
 
-            DateTime EndDateTime = DateTime.Now;
-
+    
             return new Tuple<double[,], double[,]>(SimulatedPaths, stock_values);
             
             
@@ -342,11 +381,14 @@ namespace MyApp
 
     public class ExoticOptions {
 
-        public double Asian(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool antithetic, bool control_variate, bool control_variate_antithetic, bool parallel) {
+        public double Asian(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool parallel) {
             SimulatedPaths sp1 = new SimulatedPaths();
             double[,] simulated_paths = new double[simulation, steps];
             var paths = sp1.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths,parallel);
+            Console.WriteLine("debug debug", paths.Item1);
             simulated_paths = paths.Item2;
+
+            Console.WriteLine("Simualted paths: ",simulated_paths[1, 1]);
 
             double[] end_values = new double[simulated_paths.GetLength(0)];
             double[] end_values_payoff = new double[simulated_paths.GetLength(0)];
@@ -360,8 +402,11 @@ namespace MyApp
             for(int i = 0; i < simulation; i++){
                 for(int j = 0; j < steps; j++){
                     row_total = row_total + simulated_paths[i,j];
+                    
                 }
+                //Console.WriteLine("Row Total: "+row_total);
                 average = row_total/steps;
+                //Console.WriteLine("Average Total: "+ average);
                 end_values[i] = average;
                 row_total = 0;
                 average = 0;
@@ -370,14 +415,21 @@ namespace MyApp
             for(int i = 0; i < simulation; i++) {
                 if(call == true){
                     subtraction = end_values[i] - strike;
-                        
                 }
                 else{
                     subtraction =  strike - end_values[i];
-                    
                 }
                 end_values_payoff[i] = subtraction;
+                //Console.WriteLine("End values payoff: "+ end_values_payoff[i]);
             }
+
+            for(int i = 0; i < simulation; i++) {
+                if(end_values_payoff[i] < 0){
+                    end_values_payoff[i] = 0;
+                }
+                //Console.WriteLine("End values payoff: "+ end_values_payoff[i]);
+            }
+
 
             final_value = sp1.finalMean(r, t, end_values_payoff);
 
@@ -385,32 +437,146 @@ namespace MyApp
 
         }
 
-        public double Digital(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool antithetic, bool control_variate, bool control_variate_antithetic, bool parallel, double payout) {
+        public double Digital(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool parallel, double payout) {
             SimulatedPaths sp1 = new SimulatedPaths();
             double[,] simulated_paths = new double[simulation, steps];
             var paths = sp1.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths,parallel);
             simulated_paths = paths.Item2;
             double final_value = 0;
             double[] end_vals_digi = new double[simulation];
+            double[] end_vals_digi_final = new double[simulation];
             end_vals_digi = sp1.end_values(simulated_paths);
             
             for(int i = 0; i < simulation; i++) {
                 if(call == true) {
                     if(end_vals_digi[i] > strike) {
-                        final_value = payout;
+                        end_vals_digi_final[i] = payout;
+                    }
+                    else {
+                        end_vals_digi_final[i] = 0;
                     }
                         
                 }
                 else {
                     if(end_vals_digi[i] < strike) {
-                        final_value = payout;
-                    }    
+                        end_vals_digi_final[i] = payout;
+                    }
+                    else {
+                        end_vals_digi_final[i] = 0;
+                    }   
                 }
             }
-            return final_value;
+            return sp1.finalMean(r, t, end_vals_digi_final);
         }
 
-        public double Lookback(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool antithetic, bool control_variate, bool control_variate_antithetic, bool parallel, double payout) {
+        public double Barrier(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool parallel, double barrier_level, string barrier_type) {
+            SimulatedPaths sp1 = new SimulatedPaths();
+            double[,] simulated_paths = new double[simulation, steps];
+            var paths = sp1.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths,parallel);
+            simulated_paths = paths.Item2;
+            double[] end_vals_barrier = new double[simulation];
+            end_vals_barrier = sp1.end_values(simulated_paths);
+            double[] end_vals_barrier_logic = new double[simulation];
+            double[] end_vals_payoff = new double[simulation];
+
+            double max_num = Double.MinValue;
+            double min_num = Double.MinValue;
+
+            if(barrier_type == "up_out") {
+                for(int i = 0; i < simulation; i++){
+                    for(int j = 0; j < steps; j++){
+                        if(max_num < simulated_paths[i,j]) {
+                            max_num = simulated_paths[i,j];
+                        }
+                    }
+                    if(max_num > barrier_level) {
+                        end_vals_barrier_logic[i] = 0;
+                    }
+                    else{
+                        end_vals_barrier_logic[i] = end_vals_barrier[i];
+                    }    
+              }
+            }
+            else if(barrier_type == "down_out") {
+                for(int i = 0; i < simulation; i++){
+                    for(int j = 0; j < steps; j++){
+                        if(min_num > simulated_paths[i,j]) {
+                            min_num = simulated_paths[i,j];
+                        }
+                    }
+                    if(min_num < barrier_level) {
+                        end_vals_barrier_logic[i] = 0;
+                    }
+                    else{
+                        end_vals_barrier_logic[i] = end_vals_barrier[i];
+                    }    
+              }
+            }
+
+            else if(barrier_type == "up_in"){
+                for(int i = 0; i < simulation; i++){
+                    for(int j = 0; j < steps; j++){
+                        if(max_num > simulated_paths[i,j]) {
+                            max_num = simulated_paths[i,j];
+                        }
+                    }
+                    if(max_num > barrier_level) {
+                        end_vals_barrier_logic[i] = end_vals_barrier[i];
+                    }
+                    else{
+                        end_vals_barrier_logic[i] = 0;
+                    }    
+              }
+
+            }
+            else if(barrier_type == "down_in") {
+
+                for(int i = 0; i < simulation; i++){
+                    for(int j = 0; j < steps; j++){
+                        if(min_num < simulated_paths[i,j]) {
+                            min_num = simulated_paths[i,j];
+                        }
+                    }
+                    if(min_num < barrier_level) {
+                        end_vals_barrier_logic[i] = end_vals_barrier[i];
+                    }
+                    else{
+                        end_vals_barrier_logic[i] = 0;
+                    }    
+              }
+
+            }
+            
+            double subtraction = 0;
+            double path_val = 0;
+
+            for(int i = 0; i < simulation; i++) {
+                if(end_vals_barrier_logic[i] == 0) {
+                    end_vals_payoff[i] = 0;                    
+                }
+                else{
+                    if(call == true){
+                        subtraction = end_vals_barrier_logic[i] - strike;
+                        path_val = Math.Max(subtraction, 0);
+                    }
+                    //puts
+                    else{
+                        subtraction =  strike - end_vals_barrier_logic[i];
+                        path_val = Math.Max(subtraction, 0);
+                    }
+                    end_vals_payoff[i] = path_val;
+                }
+            }
+
+            double final_value = 0;
+            final_value = sp1.finalMean(r, t, end_vals_payoff);
+
+            return final_value;
+
+        }
+    
+
+        public double Lookback(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool parallel) {
             SimulatedPaths sp1 = new SimulatedPaths();
             double[,] simulated_paths = new double[simulation, steps];
             var paths = sp1.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths,parallel);
@@ -434,18 +600,30 @@ namespace MyApp
                 }
                 max_values[i] = max_num;
                 min_values[i] = min_num;
+                max_num = Double.MinValue;
+                min_num = Double.MaxValue;
             }
+
+            //Console.WriteLine("lookvak" );
 
             double[] values_payoff = new double[simulation];
             
             for(int i = 0; i < simulation; i++) {
+                //Console.WriteLine("lookvak" + values_payoff[i]);
                 if(call == true) {
                     values_payoff[i] = max_values[i] - strike;
                 }
                 else {
                     values_payoff[i] = strike - min_values[i];
                 }
+                
+            }
 
+            for(int i = 0; i < simulation; i++) {
+                if(values_payoff[i] < 0){
+                    values_payoff[i] = 0;
+                }
+                //Console.WriteLine("End values payoff: "+ values_payoff[i]);
             }
 
             double final_value = 0;
@@ -453,7 +631,7 @@ namespace MyApp
             return final_value;
         }
 
-         public double Range(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool antithetic, bool control_variate, bool control_variate_antithetic, bool parallel, double payout) {
+         public double Range(double s, double r, double v, double t, int steps, int simulation, bool call, double strike, double[,] random_normal_paths, bool parallel) {
             SimulatedPaths sp1 = new SimulatedPaths();
             double[,] simulated_paths = new double[simulation, steps];
             var paths = sp1.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths,parallel);
@@ -477,6 +655,8 @@ namespace MyApp
                 }
                 max_values[i] = max_num;
                 min_values[i] = min_num;
+                max_num = Double.MinValue;
+                min_num = Double.MaxValue;
             }
 
             double[] values_payoff = new double[simulation];
@@ -957,6 +1137,7 @@ namespace MyApp
             if(parallel) {
                 var output = sp.SimulatedPathsCalculationParallel(s,r,v,t,steps,simulation,call,strike,random_normal_paths);
                 stock_values = output.Item2;
+                
             }
             else{
                 var output = sp.SimulatedPathsCalculation(s,r,v,t,steps,simulation,call,strike,random_normal_paths, parallel);
@@ -973,6 +1154,7 @@ namespace MyApp
                     //calls
                     if(call == true){
                         delta = bs.callDelta(stock_values[i, j-1],r,v,t,strike);
+                        //Console.WriteLine("Debug debug"+stock_values[i, j-1]);
                         double steps_calc = t/steps;
                         //double value = stock_values[i, j-1] * Math.Exp((r - ((Math.Pow(v, 2))*0.5))*(steps_calc) + ((random_normal_paths[i,j] * v * (Math.Sqrt(steps_calc)))));
                         cv = cv + (delta * (stock_values[i, j] - (stock_values[i, j-1] * Math.Exp(r*steps_calc))));
