@@ -98,7 +98,7 @@ namespace MyApp
             //change this for call/put. call = true, put = false
             bool call = true;
             double payout = 100;
-            double barrier_level = 30;
+            double barrier_level = 55;
 
             // Call and populate the array for random normal paths
             NormalRandomPaths nrp1 = new NormalRandomPaths();
@@ -483,21 +483,27 @@ namespace MyApp
             double min_num = Double.MinValue;
 
             if(barrier_type == "up_out") {
+                Console.WriteLine("up_out");
                 for(int i = 0; i < simulation; i++){
                     for(int j = 0; j < steps; j++){
                         if(max_num < simulated_paths[i,j]) {
                             max_num = simulated_paths[i,j];
                         }
                     }
+                    //Console.WriteLine("max_num" + max_num);
                     if(max_num > barrier_level) {
                         end_vals_barrier_logic[i] = 0;
                     }
                     else{
                         end_vals_barrier_logic[i] = end_vals_barrier[i];
-                    }    
+                    }
+                   // Console.WriteLine("end_vals_barrier_logic" + end_vals_barrier_logic[i]);
+                    max_num = Double.MinValue;    
               }
+
             }
             else if(barrier_type == "down_out") {
+                Console.WriteLine("down_out");
                 for(int i = 0; i < simulation; i++){
                     for(int j = 0; j < steps; j++){
                         if(min_num > simulated_paths[i,j]) {
@@ -505,18 +511,20 @@ namespace MyApp
                         }
                     }
                     if(min_num < barrier_level) {
-                        end_vals_barrier_logic[i] = 0;
+                        end_vals_barrier_logic[i] = end_vals_barrier[i];
                     }
                     else{
-                        end_vals_barrier_logic[i] = end_vals_barrier[i];
-                    }    
+                        end_vals_barrier_logic[i] = 0;
+                    }
+                    min_num = Double.MinValue;    
               }
             }
 
             else if(barrier_type == "up_in"){
+                Console.WriteLine("up_in");
                 for(int i = 0; i < simulation; i++){
                     for(int j = 0; j < steps; j++){
-                        if(max_num > simulated_paths[i,j]) {
+                        if(max_num < simulated_paths[i,j]) {
                             max_num = simulated_paths[i,j];
                         }
                     }
@@ -525,15 +533,16 @@ namespace MyApp
                     }
                     else{
                         end_vals_barrier_logic[i] = 0;
-                    }    
+                    } 
+                    max_num = Double.MinValue;   
               }
 
             }
             else if(barrier_type == "down_in") {
-
+                Console.WriteLine("down_in");
                 for(int i = 0; i < simulation; i++){
                     for(int j = 0; j < steps; j++){
-                        if(min_num < simulated_paths[i,j]) {
+                        if(min_num > simulated_paths[i,j]) {
                             min_num = simulated_paths[i,j];
                         }
                     }
@@ -542,7 +551,8 @@ namespace MyApp
                     }
                     else{
                         end_vals_barrier_logic[i] = 0;
-                    }    
+                    } 
+                    min_num = Double.MaxValue;
               }
 
             }
