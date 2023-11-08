@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "UPOrFyzz2rrS8DfyiAHUA3s8XctYrTeqhCxrzRy7IZk6HB2VchKqwsvuWLEnTCuiF+dqq6ebLgaKWa6CSDem1g==",
+  "success": true,
+  "projectFilePath": "/Users/snehapatri/Documents/Math5252/umn5353/Project4/Project4.csproj",
+  "expectedPackageFiles": [
+    "/Users/snehapatri/.nuget/packages/microsoft.extensions.apidescription.server/3.0.0/microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "/Users/snehapatri/.nuget/packages/microsoft.openapi/1.2.3/microsoft.openapi.1.2.3.nupkg.sha512",
+    "/Users/snehapatri/.nuget/packages/swashbuckle.aspnetcore/6.2.3/swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
+    "/Users/snehapatri/.nuget/packages/swashbuckle.aspnetcore.swagger/6.2.3/swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
+    "/Users/snehapatri/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.2.3/swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",
+    "/Users/snehapatri/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.2.3/swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512"
+  ],
+  "logs": []
+}
