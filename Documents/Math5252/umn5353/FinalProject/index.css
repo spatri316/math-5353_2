@@ -1,0 +1,116 @@
+.mydivstyle {
+width:200px;
+height:200px;
+background-color : red;
+}
+
+.btn-group {
+    border: 1px outset blue;
+    background-color: lightBlue;
+    height:70px;
+    width:80px;
+    cursor:pointer;
+    
+}
+
+.btn-group-inside {
+  border: 1px outset blue;
+  background-color: #ADD8E6;
+  cursor:pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  height:30px; 
+  width:80px; 
+  position:relative;
+  top:50%; 
+  left:50%;
+  margin: 8px
+  
+}
+
+.btn-group:active { 
+  transform: scale(0.98); 
+  /* Scaling button to 0.98 to its original size */ 
+  box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24); 
+  /* Lowering the shadow */ 
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Set the gap between buttons */
+  }
+
+  .flex-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+  }
+  
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .left {
+    width: 8%;
+    height: 100vh; /* 100% of the viewport height */
+    box-sizing: border-box;
+    float: left; /* Make divs side by side */
+    padding: 20px;
+    border: 1px solid #ccc;
+  }
+
+  .main {
+    width: 90%;
+    height: 100vh; /* 100% of the viewport height */
+    box-sizing: border-box;
+    float: left; /* Make divs side by side */
+    padding: 20px;
+    border: 1px solid #ccc;
+  }
+
+
+
+  #exchange {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #exchange td, #exchange th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #exchange tr:nth-child(even){background-color: #f2f2f2;}
+  
+  #exchange tr:hover {background-color: #ddd;}
+  
+  #exchange th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #FFC0CB;
+    color: #FFFAF0;
+  }
+
+  #tableContainer {
+    display: none;
+  }
+  
+
+
+  

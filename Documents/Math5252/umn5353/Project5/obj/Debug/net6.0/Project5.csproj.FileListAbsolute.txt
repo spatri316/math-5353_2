@@ -1,0 +1,7 @@
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.csproj.AssemblyReference.cache
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.GeneratedMSBuildEditorConfig.editorconfig
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.AssemblyInfoInputs.cache
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.AssemblyInfo.cs
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.csproj.CoreCompileInputs.cache
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.MvcApplicationPartsAssemblyInfo.cs
+/Users/snehapatri/Documents/Math5252/umn5353/Project5/obj/Debug/net6.0/Project5.MvcApplicationPartsAssemblyInfo.cache
