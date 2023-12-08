@@ -1734,7 +1734,7 @@ namespace MyApp
         public double MarketValue {get; set;}
         // add greeks 
     }
-    public class Context : DbContext
+    public class FinancialContext : DbContext
     {
         public DbSet<Units> Units {get; set;}
         public DbSet<Exchange> Exchanges {get; set;}
