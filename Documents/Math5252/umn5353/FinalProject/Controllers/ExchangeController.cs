@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-
-namespace portfolio_api.Controllers;
+using MyApp;
+namespace MyApp.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -9,21 +13,21 @@ namespace portfolio_api.Controllers;
 public class ExchangeController : ControllerBase
 {
 
-    [HttpGet]
-    public ActionResult<IEnnumerable<Exchange>> Get() 
+    [HttpGet("Exchanges")]
+    public ActionResult<IEnumerable<Exchange>> GetExchange() 
     {
         FinancialContext db = new FinancialContext();
-        return Ok(db.Exchange.ToArray();)
+        return Ok(db.Exchanges.ToArray());
 
     }
 
     [HttpPost]
     public ActionResult<Exchange> Post([FromBody] Exchange e) {
-        FinanceContext db = new FinanceContext();
+        FinancialContext db = new FinancialContext();
         if(db.Exchanges.Where(x => x.Name == e.Name).Count() <= 0) {
             db.Exchanges.Add(e);
             db.SaveChanges();
-            return Created(new Uri("/Exchange", UriKind.Relative), u);
+            return Created(new Uri("/Exchange", UriKind.Relative), e);
         }
         else {
             return BadRequest();
@@ -32,6 +36,3 @@ public class ExchangeController : ControllerBase
 
 
 }
-
-
-

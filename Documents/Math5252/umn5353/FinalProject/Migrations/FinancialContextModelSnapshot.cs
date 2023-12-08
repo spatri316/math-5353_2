@@ -9,19 +9,19 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FinalProject.Migrations
 {
-    [DbContext(typeof(BlackScholes.Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(FinancialContext))]
+    partial class FinancialContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.25")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MyApp.BlackScholes+Exchange", b =>
+            modelBuilder.Entity("MyApp.Exchange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -50,7 +50,7 @@ namespace FinalProject.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MyApp.BlackScholes+Units", b =>
+            modelBuilder.Entity("MyApp.Units", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

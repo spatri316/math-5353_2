@@ -16,6 +16,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Added this to avoid CORS error
+builder.Services.AddCors(x => x.AddPolicy("permissive", builder => 
+{   builder.AllowAnyOrigin()
+    .AllowAnyMethod() 
+    .AllowAnyHeader(); 
+}));
+
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -32,13 +41,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+
+app.UseCors("permissive");
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+
 
 // See https://aka.ms/new-console-template for more information
 //Console.WriteLine("Hello, World!");
@@ -62,7 +75,7 @@ app.Run();
 
 namespace MyApp
 {
-    class Program{
+    class Program {
 
         static void Main(string[] args) {
             // Try and Catch Block to make sure we only get numeric values for steps and simulation
@@ -495,6 +508,10 @@ namespace MyApp
 
 
     }
+
+
+    
+   
 
 
     // SIMULATED PATHS - CALCULATE OPTION PRICES BASED ON CALL OR PUT AND GET THE FINAL OPTION PRICE OF ALL THE PATHS
@@ -1583,6 +1600,8 @@ namespace MyApp
         }
 
     }
+    
+
 
     public class BlackScholes {
         public double d1(double s, double r, double v, double t, double k){
@@ -1629,7 +1648,7 @@ namespace MyApp
             double erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.Exp(-x * x);
             return 0.5 * (1.0 + sign * erf);
         }
-
+    }
 
 
 [Table("Exchanges")]
@@ -1744,7 +1763,7 @@ namespace MyApp
         => optionsBuilder.UseNpgsql("Host=localhost;Database=montecarlo;Username=postgres;Password=root") ;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+        {
         base.OnModelCreating(modelBuilder);
 
         // Seed Exchange data
@@ -1757,17 +1776,10 @@ namespace MyApp
             new Units { Id = 1, Name = "Bushels" },
             new Units { Id = 2, Name = "Gallons" }
         );
-
-        // Seed RateCurve data
-        // modelBuilder.Entity<RateCurve>().HasData(
-        //     new RateCurve { Id = 1, Name = "US Treasury Curve" }
-        // );
+        }
     }
-    }
-
-    
-
 
     }
 
-}
+
+

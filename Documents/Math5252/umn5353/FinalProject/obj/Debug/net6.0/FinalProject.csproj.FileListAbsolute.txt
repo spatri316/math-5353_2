@@ -32,3 +32,6 @@
 /Users/snehapatri/Documents/Math5252/umn5353/FinalProject/obj/Debug/net6.0/FinalProject.pdb
 /Users/snehapatri/Documents/Math5252/umn5353/FinalProject/obj/Debug/net6.0/FinalProject.genruntimeconfig.cache
 /Users/snehapatri/Documents/Math5252/umn5353/FinalProject/obj/Debug/net6.0/ref/FinalProject.dll
+/Users/snehapatri/Documents/Math5252/umn5353/FinalProject/bin/Debug/net6.0/Microsoft.Extensions.Caching.Memory.dll
+/Users/snehapatri/Documents/Math5252/umn5353/FinalProject/bin/Debug/net6.0/Microsoft.Extensions.DependencyInjection.dll
+/Users/snehapatri/Documents/Math5252/umn5353/FinalProject/bin/Debug/net6.0/System.Diagnostics.DiagnosticSource.dll
