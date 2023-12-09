@@ -1652,70 +1652,103 @@ namespace MyApp
 
 
 [Table("Exchanges")]
-        public class Exchange
+    public class Exchange
     {
         public int Id {get; set;}
         public string Name {get; set;}
         public string ShortCode {get; set;}
     }
-    [Table("Market")]
+[Table("Market")]
     public class Market
     {
         public int Id {get;set;}
         public string Name {get;set;}
+        public string Symbol { get; set; }
+        public double Size { get; set; }
+        public int UnitId { get; set; }
+        public string Unit { get; set; }
+        public Units? units_ob { get; set; } // Navigation property for Unit
+        public double Multiplier { get; set; }
+        public int ExchangeId { get; set; }
+        public string Exchange { get; set; }
+        public Exchange? exchange_ob { get; set; } // Navigation property for Exchange
+        public int RateCurveId { get; set; }
+        public string Curve{ get; set; }
+        public RateCurve? curve_ob { get; set; } // Navigation property for RateCurve
     }
-    [Table("Units")]
+
+[Table("Units")]
     public class Units
     {
         public int Id {get;set;}
         public string Name {get;set;}
-        public double Quantity {get;set;}
+    
+    }
+
+[Table("Instruments")]
+
+    public class Instrument 
+    {
+        public int Id {get; set;}
+        public string Symbol {get; set;}
     }
     
-    [Table("Underlying")]
-    public class Underlying
+[Table("Underlying")]
+    public class Underlying : Instrument
     {
-        public Exchange Exchange {get; set;}
-        public int ExchangeId {get; set;}
-
-        public int Id {get; set;}
-        public string CorpName {get; set;}
-        public string Ticker {get; set;}
+        public int MarketId {get; set;}
+        public string Market {get; set;}
+        public Market? market_ob {get; set;}
+        public int Month {get; set;} 
+        public int Year {get; set;}
+        public DateTime Expiration {get; set;}
     }
-    [Table("Options")]
-    public class Option
+    [Table("Derivatives")]
+    public class Derivative : Instrument
     {
-        public int Id {get; set;}
-        public Underlying Underlying {get; set;}
-        public DateTimeOffset ExpirationDate {get; set;}
+        public int MarketId {get; set;}
+        public string Market {get; set;}
+        public Market? market_ob {get; set;}
+        public string InstType {get; set;}
+        public int UnderlyingMonth {get; set;}
+        public int UnderlyingYear {get; set;}
+        public int UnderlyingId {get; set;}
+        public string Underlying {get; set;}
+        public Underlying? underlying_ob {get; set;}
+        public double? Strike {get; set;}
+        public string? Call_Put {get; set;}
+        public string? Payout {get; set;}
+        public string? BarrierType {get; set;}
+        public string? BarrierLevel {get; set;}
+        public DateTime Expiration {get; set;}
     }
     [Table("European")]
-    public class European : Option
+    public class European : Derivative
     {
         public double strike {get; set;}
         public bool IsCall {get; set;}
     }
     [Table("Asian")]
-    public class Asian : Option
+    public class Asian : Derivative
     {
         public double strike {get; set;}
         public bool IsCall {get; set;}
     }
     [Table("Digital")]
-    public class Digital : Option
+    public class Digital : Derivative
     {
         public double strike {get; set;}
         public bool IsCall {get; set;}
         public double payout {get; set;}
     }
     [Table("Lookback")]
-    public class Lookback : Option
+    public class Lookback : Derivative
     {
         public double strike {get; set;}
         public bool IsCall {get; set;}
     }
     [Table("Barrier")]
-    public class Barrier : Option
+    public class Barrier : Derivative
     {
         public double strike {get; set;}
         public bool IsCall {get; set;}
@@ -1723,17 +1756,18 @@ namespace MyApp
         public double BarrierLevel {get; set;}
     }
     [Table("Range")]
-    public class Range : Option
+    public class Range : Derivative
     {
        
     }
-    [Table("HistoricalPrice")]
-    public class HistoricalPrice
+    [Table("Prices")]
+    public class Price
     {
         public int Id {get;set;}
-        public Underlying Underlying {get;set;}
-        public int UnderlyingId {get; set;}
-        public double Price {get;set;}
+        public int InstSymbolId {get; set;}
+        public string InstSymbolName {get; set;}
+        public Instrument? instsymbol {get; set;}
+        public double PriceNum {get;set;}
         public DateTimeOffset Date {get;set;}
     }
     [Table("Trade")]
@@ -1741,23 +1775,42 @@ namespace MyApp
     {
         public int Id {get; set;}
         public double Quantity {get; set;}
-        public Underlying Instrument {get; set;}
-
+        public int SymbolId {get; set;}
+        public string SymbolName {get; set;}
+        public Instrument? symbol {get; set;}
         public double Price {get; set;}
         public DateTimeOffset Date {get; set;}
     }
-    [Table("TradeEvaluation")]
-    public class TradeEvaluation
+
+     [Table("Curves")]
+    public class RateCurve
     {
         public int Id {get; set;}
-        public double MarketValue {get; set;}
-        // add greeks 
+        public string Name {get; set;}
     }
+    [Table("Rates")]
+    public class Rate
+    {
+        public int Id {get; set;}
+        public double Tenor {get; set;}
+        public double rate {get; set;}
+        public int RateCurveId {get; set;}
+        public string CurveName {get; set;}
+        public RateCurve? curve  {get; set;}
+    }
+   
     public class FinancialContext : DbContext
     {
         public DbSet<Units> Units {get; set;}
         public DbSet<Exchange> Exchanges {get; set;}
-        //public DbSet<Instrument> Instruments {get; set;}
+        public DbSet<Market> Markets {get; set;}
+        public DbSet<Instrument> Instrument {get; set;}
+        public DbSet<Underlying> Underlying {get; set;}
+        public DbSet<Derivative> Derivatives {get; set;}
+        public DbSet<Price> HistoricalPrices {get; set;}
+        public DbSet<Trade> Trades {get; set;}
+        public DbSet<RateCurve> Curves {get; set;}
+        public DbSet<Rate> Rates {get; set;}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("Host=localhost;Database=montecarlo;Username=postgres;Password=root") ;
@@ -1765,7 +1818,8 @@ namespace MyApp
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         base.OnModelCreating(modelBuilder);
-
+        
+        DateTime dates = new DateTime(2022, 11, 12, 0, 0, 0, DateTimeKind.Utc);
         // Seed Exchange data
         modelBuilder.Entity<Exchange>().HasData(
             new Exchange { Id = 1, Name = "Chicago Mercantile Exchange", ShortCode = "CME" }
@@ -1776,7 +1830,43 @@ namespace MyApp
             new Units { Id = 1, Name = "Bushels" },
             new Units { Id = 2, Name = "Gallons" }
         );
-        }
+
+
+        modelBuilder.Entity<Instrument>().HasData(
+            new Instrument { Id = 3, Symbol = "CN2023" },
+            new Instrument { Id = 4, Symbol = "CK2023" }
+        );
+
+        modelBuilder.Entity<Underlying>().HasData(
+            new Underlying { Id = 1, Symbol = "CN2023", MarketId = 1, Market = "CBOT Corn", Month = 12, Year = 2020, Expiration = dates}
+        );
+
+        modelBuilder.Entity<Rate>().HasData(
+            new Rate { Id = 1, Tenor = 3, rate = 0.05, RateCurveId = 1, CurveName = "Treasury"}
+        );
+
+        modelBuilder.Entity<RateCurve>().HasData(
+            new RateCurve { Id = 1, Name = "US Treasury Curve"}
+        );
+
+        modelBuilder.Entity<Trade>().HasData(
+            new Trade { Id = 1, Quantity = 1.5, SymbolId = 1, SymbolName = "CH2023", Price = 30, Date = dates }
+        );
+
+        modelBuilder.Entity<Market>().HasData(
+            new Market { Id = 1, Name = "CBOT Corn", Symbol = "C", Size = 5000, UnitId = 1, Unit = "Bushels", Multiplier = 100, ExchangeId = 1, Exchange = "CME", RateCurveId = 1, Curve = "US Treasury Curve"  }
+        );
+        modelBuilder.Entity<Price>().HasData(
+            new Price { Id = 1, InstSymbolId = 1, InstSymbolName = "CN2023", PriceNum = 75.75, Date = dates}
+        );
+
+        modelBuilder.Entity<Derivative>().HasData(
+            new Derivative { Id = 2,Symbol = "CK2023", MarketId = 1, Market = "CBOT Corn", InstType = "EuropeanOption", UnderlyingMonth = 12, UnderlyingYear = 2023, UnderlyingId = 1, Underlying = "CN2023", Strike = 740, Call_Put = "Call", Expiration = dates}
+        );
+
+    }
+
+
     }
 
     }

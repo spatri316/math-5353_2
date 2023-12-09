@@ -15,28 +15,27 @@
 
 <body style="background-color: #FFC0CB">
 
+
+<div class="flex-container">
   <div class="left">
-    <div class="flex-container">
-      <div class="flex-column">
         <div class="button-container">
           <button id="exchange_btn" class="btn-group">Exchange</button>
-          <button class = "btn-group">Markets</button>
+          <button id="markets_btn" class = "btn-group">Markets</button>
           <button class = "btn-group">Underlying</button>
-          <button class = "btn-group">Units</button>
-          <button class = "btn-group">Curves</button>
+          <button id="units_btn" class = "btn-group">Units</button>
+          <button id="curves_btn" class = "btn-group">Curves</button>
           <button class = "btn-group">Rates</button>
           <button class = "btn-group">Prices</button>
           <button class = "btn-group">Derivatives</button>
           <button class = "btn-group">Trades</button>
         </div>
-      </div>
     </div>
-  </div>
+  
 
   <div class = "main">
-    <div id="tableContainer">
+    <div id="tableContainerExchange" style="display: none;">
     <h1 style="font-size:30px;">Exchange</h1>
-    <table id="exchange">
+    <table id="table_all">
         <tr>
           <th>ID</th>
           <th>Name</th>
@@ -59,7 +58,55 @@
         <button id = "btnSaveExchange">Add Exchange</button>
     </div>
     </div>
-</div>
+  
+
+  
+    <div id="tableContainerUnits" style="display: none;">
+      <h1 style="font-size:30px;">Units</h1>
+      <table id="table_all">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+          </tr>
+          <tbody id = "tableBodyUnits"></tbody>
+        </table>
+        <div class="button-container">
+        <button id = "btnRefreshUnits" class = "btn-group-inside">Refresh</button>
+      </div>
+      <div class = "right">
+          <span>Name:</span>
+          <input id = 'txtUnitName'/>
+          <br>
+          <button id = "btnSaveUnit">Add Unit</button>
+      </div>
+      </div>
+
+      <div id="tableContainerCurves" style="display: none;">
+        <h1 style="font-size:30px;">Curves</h1>
+        <table id="table_all">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+            </tr>
+          <tbody id = "tableBodyCurves"></tbody>
+          </table>
+          <div class="button-container">
+          <button id = "btnRefreshCurves" class = "btn-group-inside">Refresh</button>
+        </div>
+        <div class = "right">
+            <span>Name:</span>
+            <input id = 'txtCurveName'/>
+            <br>
+            <br>
+            <button id = "btnSaveCurve">Add Curves</button>
+        </div>
+        </div>
+
+
+    </div>
+  
+  </div>
+
 
 
 

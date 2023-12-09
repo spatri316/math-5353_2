@@ -10,24 +10,24 @@ namespace MyApp.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class ExchangeController : ControllerBase
+public class UnitsController : ControllerBase
 {
 
-    [HttpGet("Exchanges")]
-    public ActionResult<IEnumerable<Exchange>> GetExchange() 
+    [HttpGet("Units")]
+    public ActionResult<IEnumerable<Units>> GetExchange() 
     {
         FinancialContext db = new FinancialContext();
-        return Ok(db.Exchanges.ToArray());
+        return Ok(db.Units.ToArray());
 
     }
 
-    [HttpPost("Exchanges")]
-    public ActionResult<Exchange> Post([FromBody] Exchange e) {
+    [HttpPost("Units")]
+    public ActionResult<Units> Post([FromBody] Units e) {
         FinancialContext db = new FinancialContext();
-        if(db.Exchanges.Where(x => x.Name == e.Name).Count() <= 0) {
-            db.Exchanges.Add(e);
+        if(db.Units.Where(x => x.Name == e.Name).Count() <= 0) {
+            db.Units.Add(e);
             db.SaveChanges();
-            return Created(new Uri("/Exchange", UriKind.Relative), e);
+            return Created(new Uri("/Unit", UriKind.Relative), e);
         }
         else {
             return BadRequest();
