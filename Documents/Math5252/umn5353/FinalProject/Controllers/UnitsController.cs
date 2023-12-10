@@ -14,7 +14,7 @@ public class UnitsController : ControllerBase
 {
 
     [HttpGet("Units")]
-    public ActionResult<IEnumerable<Units>> GetExchange() 
+    public ActionResult<IEnumerable<Units>> GetUnits() 
     {
         FinancialContext db = new FinancialContext();
         return Ok(db.Units.ToArray());

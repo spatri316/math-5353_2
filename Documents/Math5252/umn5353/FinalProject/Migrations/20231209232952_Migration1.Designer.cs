@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinalProject.Migrations
 {
     [DbContext(typeof(FinancialContext))]
-    [Migration("20231209215115_Migration1")]
+    [Migration("20231209232952_Migration1")]
     partial class Migration1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -136,7 +136,7 @@ namespace FinalProject.Migrations
 
                     b.HasIndex("units_obId");
 
-                    b.ToTable("Market");
+                    b.ToTable("Markets");
 
                     b.HasData(
                         new
@@ -283,7 +283,7 @@ namespace FinalProject.Migrations
 
                     b.HasIndex("SymbolId");
 
-                    b.ToTable("Trade");
+                    b.ToTable("Trades");
 
                     b.HasData(
                         new
@@ -418,7 +418,7 @@ namespace FinalProject.Migrations
 
                     b.HasIndex("MarketId");
 
-                    b.ToTable("Underlying");
+                    b.ToTable("Underlyings");
 
                     b.HasData(
                         new

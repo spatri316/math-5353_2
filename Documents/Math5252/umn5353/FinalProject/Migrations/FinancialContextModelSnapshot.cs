@@ -134,7 +134,7 @@ namespace FinalProject.Migrations
 
                     b.HasIndex("units_obId");
 
-                    b.ToTable("Market");
+                    b.ToTable("Markets");
 
                     b.HasData(
                         new
@@ -281,7 +281,7 @@ namespace FinalProject.Migrations
 
                     b.HasIndex("SymbolId");
 
-                    b.ToTable("Trade");
+                    b.ToTable("Trades");
 
                     b.HasData(
                         new
@@ -416,7 +416,7 @@ namespace FinalProject.Migrations
 
                     b.HasIndex("MarketId");
 
-                    b.ToTable("Underlying");
+                    b.ToTable("Underlyings");
 
                     b.HasData(
                         new

@@ -103,6 +103,52 @@
         </div>
 
 
+        <div id="tableContainerMarkets" style="display: none;">
+          <h1 style="font-size:30px;">Markets</h1>
+          <table id="table_all">
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Size</th>
+                <th>Units</th>
+                <th>Multiplier</th>
+                <th>Exchange</th>
+                <th>Rate Curve</th>
+              </tr>
+            <tbody id = "tableBodyMarket"></tbody>
+            </table>
+            <div class="button-container">
+            <button id = "btnRefreshMarket" class = "btn-group-inside">Refresh</button>
+          </div>
+          <div class = "right">
+              <span>Name:</span>
+              <input id = 'txtMarketName'/>
+              <br>
+              <span>Symbol:</span>
+              <input id = 'txtMarketSymbol'/>
+              <br>
+              <span>Size:</span>
+              <input id = 'txtMarketSize'/>
+              <br>
+              <span>Units:</span>
+              <select id = 'txtMarketUnits'><option disabled selected value> -- select an option -- </option></select>
+              <br>
+              <span>Multiplier:</span>
+              <input id = 'txtMarketMultiplier'/>
+              <br>
+              <span>Exchange:</span>
+              <select id = 'txtMarketExchange'><option disabled selected value> -- select an option -- </option></select>
+              <br>
+              <span>Rate Curve:</span>
+              <select id = 'txtMarketRate'><option disabled selected value> -- select an option -- </option></select>
+              <br>
+              <br>
+              <button id = "btnSaveCurve">Add Market</button>
+          </div>
+          </div>
+
+
     </div>
   
   </div>

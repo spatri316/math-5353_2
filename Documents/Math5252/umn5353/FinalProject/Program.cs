@@ -1658,7 +1658,7 @@ namespace MyApp
         public string Name {get; set;}
         public string ShortCode {get; set;}
     }
-[Table("Market")]
+[Table("Markets")]
     public class Market
     {
         public int Id {get;set;}
@@ -1693,7 +1693,7 @@ namespace MyApp
         public string Symbol {get; set;}
     }
     
-[Table("Underlying")]
+[Table("Underlyings")]
     public class Underlying : Instrument
     {
         public int MarketId {get; set;}
@@ -1770,7 +1770,7 @@ namespace MyApp
         public double PriceNum {get;set;}
         public DateTimeOffset Date {get;set;}
     }
-    [Table("Trade")]
+    [Table("Trades")]
     public class Trade
     {
         public int Id {get; set;}
@@ -1804,8 +1804,8 @@ namespace MyApp
         public DbSet<Units> Units {get; set;}
         public DbSet<Exchange> Exchanges {get; set;}
         public DbSet<Market> Markets {get; set;}
-        public DbSet<Instrument> Instrument {get; set;}
-        public DbSet<Underlying> Underlying {get; set;}
+        public DbSet<Instrument> Instruments {get; set;}
+        public DbSet<Underlying> Underlyings {get; set;}
         public DbSet<Derivative> Derivatives {get; set;}
         public DbSet<Price> HistoricalPrices {get; set;}
         public DbSet<Trade> Trades {get; set;}

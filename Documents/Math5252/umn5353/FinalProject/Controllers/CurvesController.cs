@@ -14,7 +14,7 @@ public class CurvesController : ControllerBase
 {
 
     [HttpGet("Curves")]
-    public ActionResult<IEnumerable<RateCurve>> GetExchange() 
+    public ActionResult<IEnumerable<RateCurve>> GetCurves() 
     {
         FinancialContext db = new FinancialContext();
         return Ok(db.Curves.ToArray());

@@ -108,7 +108,7 @@ namespace FinalProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Trade",
+                name: "Trades",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -121,9 +121,9 @@ namespace FinalProject.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Trade", x => x.Id);
+                    table.PrimaryKey("PK_Trades", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Trade_Instruments_SymbolId",
+                        name: "FK_Trades_Instruments_SymbolId",
                         column: x => x.SymbolId,
                         principalTable: "Instruments",
                         principalColumn: "Id",
@@ -131,7 +131,7 @@ namespace FinalProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Market",
+                name: "Markets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -150,28 +150,28 @@ namespace FinalProject.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Market", x => x.Id);
+                    table.PrimaryKey("PK_Markets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Market_Curves_RateCurveId",
+                        name: "FK_Markets_Curves_RateCurveId",
                         column: x => x.RateCurveId,
                         principalTable: "Curves",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Market_Exchanges_ExchangeId",
+                        name: "FK_Markets_Exchanges_ExchangeId",
                         column: x => x.ExchangeId,
                         principalTable: "Exchanges",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Market_Units_units_obId",
+                        name: "FK_Markets_Units_units_obId",
                         column: x => x.units_obId,
                         principalTable: "Units",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Underlying",
+                name: "Underlyings",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
@@ -183,17 +183,17 @@ namespace FinalProject.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Underlying", x => x.Id);
+                    table.PrimaryKey("PK_Underlyings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Underlying_Instruments_Id",
+                        name: "FK_Underlyings_Instruments_Id",
                         column: x => x.Id,
                         principalTable: "Instruments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Underlying_Market_MarketId",
+                        name: "FK_Underlyings_Markets_MarketId",
                         column: x => x.MarketId,
-                        principalTable: "Market",
+                        principalTable: "Markets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -227,15 +227,15 @@ namespace FinalProject.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Derivatives_Market_MarketId",
+                        name: "FK_Derivatives_Markets_MarketId",
                         column: x => x.MarketId,
-                        principalTable: "Market",
+                        principalTable: "Markets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Derivatives_Underlying_UnderlyingId",
+                        name: "FK_Derivatives_Underlyings_UnderlyingId",
                         column: x => x.UnderlyingId,
-                        principalTable: "Underlying",
+                        principalTable: "Underlyings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -271,7 +271,7 @@ namespace FinalProject.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Market",
+                table: "Markets",
                 columns: new[] { "Id", "Curve", "Exchange", "ExchangeId", "Multiplier", "Name", "RateCurveId", "Size", "Symbol", "Unit", "UnitId", "units_obId" },
                 values: new object[] { 1, "US Treasury Curve", "CME", 1, 100.0, "CBOT Corn", 1, 5000.0, "C", "Bushels", 1, null });
 
@@ -286,12 +286,12 @@ namespace FinalProject.Migrations
                 values: new object[] { 1, "Treasury", 1, 3.0, 0.050000000000000003 });
 
             migrationBuilder.InsertData(
-                table: "Trade",
+                table: "Trades",
                 columns: new[] { "Id", "Date", "Price", "Quantity", "SymbolId", "SymbolName" },
                 values: new object[] { 1, new DateTimeOffset(new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 30.0, 1.5, 1, "CH2023" });
 
             migrationBuilder.InsertData(
-                table: "Underlying",
+                table: "Underlyings",
                 columns: new[] { "Id", "Expiration", "Market", "MarketId", "Month", "Year" },
                 values: new object[] { 1, new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc), "CBOT Corn", 1, 12, 2020 });
 
@@ -311,18 +311,18 @@ namespace FinalProject.Migrations
                 column: "UnderlyingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Market_ExchangeId",
-                table: "Market",
+                name: "IX_Markets_ExchangeId",
+                table: "Markets",
                 column: "ExchangeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Market_RateCurveId",
-                table: "Market",
+                name: "IX_Markets_RateCurveId",
+                table: "Markets",
                 column: "RateCurveId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Market_units_obId",
-                table: "Market",
+                name: "IX_Markets_units_obId",
+                table: "Markets",
                 column: "units_obId");
 
             migrationBuilder.CreateIndex(
@@ -336,13 +336,13 @@ namespace FinalProject.Migrations
                 column: "RateCurveId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Trade_SymbolId",
-                table: "Trade",
+                name: "IX_Trades_SymbolId",
+                table: "Trades",
                 column: "SymbolId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Underlying_MarketId",
-                table: "Underlying",
+                name: "IX_Underlyings_MarketId",
+                table: "Underlyings",
                 column: "MarketId");
         }
 
@@ -358,16 +358,16 @@ namespace FinalProject.Migrations
                 name: "Rates");
 
             migrationBuilder.DropTable(
-                name: "Trade");
+                name: "Trades");
 
             migrationBuilder.DropTable(
-                name: "Underlying");
+                name: "Underlyings");
 
             migrationBuilder.DropTable(
                 name: "Instruments");
 
             migrationBuilder.DropTable(
-                name: "Market");
+                name: "Markets");
 
             migrationBuilder.DropTable(
                 name: "Curves");
