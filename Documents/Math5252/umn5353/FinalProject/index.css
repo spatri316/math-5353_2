@@ -70,7 +70,6 @@ background-color : red;
     box-sizing: border-box;
     float: left; /* Make divs side by side */
     padding: 20px;
-    border: 1px solid #ccc;
   }
 
   .main {
@@ -79,7 +78,6 @@ background-color : red;
     box-sizing: border-box;
     float: left;
     padding: 20px;
-    border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
  }
@@ -90,7 +88,7 @@ background-color : red;
     box-sizing: border-box;
     float: right;
     padding: 20px;
-    border: 1px solid #ccc;
+    
  }
 
 
@@ -98,6 +96,7 @@ background-color : red;
   #table_all {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
+    color: #FFFAF0;
     width: 100%;
   }
   
@@ -106,15 +105,15 @@ background-color : red;
     padding: 8px;
   }
   
-  #table_all tr:nth-child(even){background-color: #f2f2f2;}
+  /* #table_all tr:nth-child(even){background-color: #f2f2f2;  color: #FFFAF0;} */
   
-  #table_all tr:hover {background-color: #ddd;}
+  #table_all tr:hover {background-color: #FF1493;}
   
   #table_all th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #FFC0CB;
+    background-color: #FF1493;
     color: #FFFAF0;
   }
 

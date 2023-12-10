@@ -1,3 +1,12 @@
+let exchangeList = [];
+let marketList = [];
+let unitList = [];
+let curvesList = [];
+let underlyingList = [];
+let instrumentList = [];
+let tradeList = [];
+
+
 document.getElementById("exchange_btn").addEventListener("click", function(){
   var exchangeTableContainer = document.getElementById('tableContainerExchange');
   var unitsTableContainer = document.getElementById('tableContainerUnits');
@@ -286,9 +295,12 @@ function selectUnitsMarket() {
     // Configure it with the GET request to your server endpoint
     xhr.open("GET", "http://localhost:5283/Market/UniqueUnits", true);
 
+
     // Define the callback function to handle the response
     xhr.onload = function() {
       if (xhr.status >= 200 && xhr.status < 300) {
+
+        console.log(xhr.responseText);
           const data = JSON.parse(xhr.responseText);
           let selectDropdown = document.getElementById("txtMarketUnits");
 
@@ -320,18 +332,20 @@ function selectExchangeMarket() {
     // Configure it with the GET request to your server endpoint
     xhr.open("GET", "http://localhost:5283/Market/UniqueExchanges", true);
 
+
+
     // Define the callback function to handle the response
     xhr.onload = function() {
       if (xhr.status >= 200 && xhr.status < 300) {
           const data = JSON.parse(xhr.responseText);
+
+          console.log(xhr.responseText);
           let selectDropdown = document.getElementById("txtMarketExchange");
 
-          selectDropdown.innerHTML = "";
-
-          data.forEach(unit => {
+          data.forEach(exchange => {
               const option = document.createElement("option");
-              option.value = unit;
-              option.text = unit;
+              option.value = exchange;
+              option.text = exchange;
               selectDropdown.add(option);
           });
       } else {
@@ -360,6 +374,8 @@ function selectCurveMarket() {
           const data = JSON.parse(xhr.responseText);
           let selectDropdown = document.getElementById("txtMarketRate");
 
+          console.log(xhr.responseText);
+
           selectDropdown.innerHTML = "";
 
           data.forEach(unit => {
@@ -381,12 +397,73 @@ function selectCurveMarket() {
   xhr.send();
 }
 
+function postNewMarket() {
 
+  fetch("http://localhost:5283/Units/Units")
+    .then(responseUnits => responseUnits.json())
+    .then(unitList => {
+      const selectedUnit = unitList.find(unit => unit.name === txtMarketUnits);
+
+      // Fetch exchanges
+      return fetch("http://localhost:5283/Exchange/Exchanges");
+    })
+    .then(responseExchanges => responseExchanges.json())
+    .then(exchangeList => {
+      const selectedExchange = exchangeList.find(exchange => exchange.name === txtMarketExchange);
+
+      // Fetch curves
+      return fetch("http://localhost:5283/Curves/Curves");
+    })
+    .then(responseCurves => responseCurves.json())
+    .then(curveList => {
+      const selectedCurve = curveList.find(curve => curve.name === txtMarketRate);
+
+  let txtName = document.getElementById("txtMarketName").value;
+  let txtSymbol = document.getElementById("txtMarketSymbol").value;
+  let txtSize = document.getElementById("txtMarketSize").value;
+  let txtUnit = document.getElementById("txtMarketUnits").value;
+  let txtMultiplier = document.getElementById("txtMarketMultiplier").value;
+  let txtExchange = document.getElementById("txtMarketExchange").value;
+  let txtCurve = document.getElementById("txtMarketRate").value;
+
+      // Post new market
+      return fetch("http://localhost:5283/Market/Markets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Name: txtName,
+          Symbol: txtSymbol,
+          Size: txtSize,
+          UnitID: selectedUnit?.id,
+          Unit: txtUnit,
+          units_ob: selectedUnit,
+          Multiplier: txtMultiplier,
+          ExchangeId: selectedExchange?.id,
+          Exchange: txtExchange,
+          exchange_ob: selectedExchange,
+          RateCurveId: selectedCurve?.id,
+          Curve: txtCurve,
+          curve_ob: selectedCurve,
+        }),
+      });
+    })
+    .then(responseMarket => {
+      if (responseMarket.status === 201) {
+        return responseMarket.json();
+      } else {
+        throw new Error(`Error: ${responseMarket.status}`);
+      }
+    })
+    .then(data => console.log(data))
+    .catch(error => console.error("An error occurred:", error));
+
+}
 
 
 document.getElementById("btnRefreshExchange").addEventListener("click", function() {getExchanges()});
 document.getElementById("btnSaveExchange").addEventListener("click", function() {postNewExchanges()});
-
 
 document.getElementById("btnRefreshUnits").addEventListener("click", function() {getUnits()});
 document.getElementById("btnSaveUnit").addEventListener("click", function() {postNewUnits()});
@@ -395,6 +472,7 @@ document.getElementById("btnRefreshCurves").addEventListener("click", function()
 document.getElementById("btnSaveCurve").addEventListener("click", function() {postNewCurves()});
 
 document.getElementById("btnRefreshMarket").addEventListener("click", function() {getMarket()});
+document.getElementById("btnSaveMarket").addEventListener("click", function() {postNewMarket()});
 
 document.getElementById("txtMarketUnits").addEventListener("click", function() {selectUnitsMarket()});
 document.getElementById("txtMarketExchange").addEventListener("click", function() {selectExchangeMarket()});

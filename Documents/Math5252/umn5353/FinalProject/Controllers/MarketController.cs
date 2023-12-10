@@ -25,7 +25,7 @@ public class MarketController : ControllerBase
     public ActionResult<IEnumerable<string>> GetUniqueUnits()
     {
         FinancialContext db = new FinancialContext();
-        var uniqueUnits = db.Markets.Select(m => m.Unit).Distinct().ToList();
+        var uniqueUnits = db.Units.Select(m => m.Name).Distinct().ToList();
         return Ok(uniqueUnits);
     }
 
@@ -34,7 +34,7 @@ public class MarketController : ControllerBase
     public ActionResult<IEnumerable<string>> GetUniqueExchanges()
     {
         FinancialContext db = new FinancialContext();
-        var uniqueExchange = db.Markets.Select(m => m.Exchange).Distinct().ToList();
+        var uniqueExchange = db.Exchanges.Select(m => m.ShortCode).Distinct().ToList();
         return Ok(uniqueExchange);
     }
 
@@ -42,21 +42,40 @@ public class MarketController : ControllerBase
     public ActionResult<IEnumerable<string>> GetRateCurveExchanges()
     {
         FinancialContext db = new FinancialContext();
-        var uniqueExchange = db.Markets.Select(m => m.Curve).Distinct().ToList();
+        var uniqueExchange = db.Curves.Select(m => m.Name).Distinct().ToList();
         return Ok(uniqueExchange);
     }
 
     [HttpPost("Markets")]
     public ActionResult<Market> Post([FromBody] Market e) {
         FinancialContext db = new FinancialContext();
-        if(db.Markets.Where(x => x.Name == e.Name).Count() <= 0) {
-            db.Markets.Add(e);
-            db.SaveChanges();
-            return Created(new Uri("/Market", UriKind.Relative), e);
+
+        var existingUnit = db.Units.FirstOrDefault(u => u.Name == e.Unit);
+        if (existingUnit == null)
+        {
+            return BadRequest("Unit with the provided name does not exist.");
         }
-        else {
-            return BadRequest();
+        e.UnitId = existingUnit.Id;
+
+        var existingExchange = db.Exchanges.FirstOrDefault(u => u.Name == e.Exchange);
+        if (existingExchange == null)
+        {
+            return BadRequest("Unit with the provided name does not exist.");
         }
+        e.ExchangeId = existingExchange.Id;
+
+        var existingCurve = db.Curves.FirstOrDefault(u => u.Name == e.Curve);
+        if (existingCurve == null)
+        {
+            return BadRequest("Unit with the provided name does not exist.");
+        }
+        e.RateCurveId = existingCurve.Id;
+
+        db.Markets.Add(e);
+        db.SaveChanges();
+
+        return Created(new Uri("/Market", UriKind.Relative), e);
+        
     }
 
 
