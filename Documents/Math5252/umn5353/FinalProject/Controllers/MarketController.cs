@@ -57,17 +57,17 @@ public class MarketController : ControllerBase
         }
         e.UnitId = existingUnit.Id;
 
-        var existingExchange = db.Exchanges.FirstOrDefault(u => u.Name == e.Exchange);
+        var existingExchange = db.Exchanges.FirstOrDefault(u => u.ShortCode == e.Exchange);
         if (existingExchange == null)
         {
-            return BadRequest("Unit with the provided name does not exist.");
+            return BadRequest("Exchange with the provided name does not exist.");
         }
         e.ExchangeId = existingExchange.Id;
 
         var existingCurve = db.Curves.FirstOrDefault(u => u.Name == e.Curve);
         if (existingCurve == null)
         {
-            return BadRequest("Unit with the provided name does not exist.");
+            return BadRequest("Curve with the provided name does not exist.");
         }
         e.RateCurveId = existingCurve.Id;
 

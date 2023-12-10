@@ -399,65 +399,77 @@ function selectCurveMarket() {
 
 function postNewMarket() {
 
-  fetch("http://localhost:5283/Units/Units")
-    .then(responseUnits => responseUnits.json())
-    .then(unitList => {
-      const selectedUnit = unitList.find(unit => unit.name === txtMarketUnits);
+  var selectedUnit;
+  var selectedExchange;
+  var selectedCurve;
 
-      // Fetch exchanges
-      return fetch("http://localhost:5283/Exchange/Exchanges");
-    })
-    .then(responseExchanges => responseExchanges.json())
-    .then(exchangeList => {
-      const selectedExchange = exchangeList.find(exchange => exchange.name === txtMarketExchange);
+  let request_units = new XMLHttpRequest();
+  request_units.open("GET", "http://localhost:5283/Units/Units", false);
+  request_units.onload = () => {
+    if(request_units.status === 200) {
+      unitList = JSON.parse(request_units.responseText);
+      selectedUnit = unitList.find(unit => unit.name === document.getElementById("txtMarketUnits").value);
+      console.log(selectedUnit);
+    }
+  }
+  request_units.send()
 
-      // Fetch curves
-      return fetch("http://localhost:5283/Curves/Curves");
-    })
-    .then(responseCurves => responseCurves.json())
-    .then(curveList => {
-      const selectedCurve = curveList.find(curve => curve.name === txtMarketRate);
+  let request_exchange = new XMLHttpRequest();
+  request_exchange.open("GET", "http://localhost:5283/Exchange/Exchanges", false);
+  request_exchange.onload = () => {
+    if(request_exchange.status === 200) {
+      exchangeList = JSON.parse(request_exchange.responseText);
+      selectedExchange = exchangeList.find(exchange => exchange.shortCode === document.getElementById("txtMarketExchange").value);
+      console.log(selectedExchange);
+    }
+  }
+
+  request_exchange.send()
+
+  let request_curve = new XMLHttpRequest();
+  request_curve.open("GET", "http://localhost:5283/Curves/Curves", false);
+  request_curve.onload = () => {
+    if(request_curve.status === 200) {
+      curveList = JSON.parse(request_curve.responseText);
+      selectedCurve = curveList.find(curve => curve.name === document.getElementById("txtMarketRate").value);
+      console.log(selectedCurve);
+    }
+  } 
+  request_curve.send();
+
+  let request = new XMLHttpRequest();
+  request.open("POST", "http://localhost:5283/Market/Markets", true);
+  request.setRequestHeader("Content-Type", "application/json");
 
   let txtName = document.getElementById("txtMarketName").value;
   let txtSymbol = document.getElementById("txtMarketSymbol").value;
   let txtSize = document.getElementById("txtMarketSize").value;
-  let txtUnit = document.getElementById("txtMarketUnits").value;
   let txtMultiplier = document.getElementById("txtMarketMultiplier").value;
-  let txtExchange = document.getElementById("txtMarketExchange").value;
-  let txtCurve = document.getElementById("txtMarketRate").value;
 
-      // Post new market
-      return fetch("http://localhost:5283/Market/Markets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          Name: txtName,
-          Symbol: txtSymbol,
-          Size: txtSize,
-          UnitID: selectedUnit?.id,
-          Unit: txtUnit,
-          units_ob: selectedUnit,
-          Multiplier: txtMultiplier,
-          ExchangeId: selectedExchange?.id,
-          Exchange: txtExchange,
-          exchange_ob: selectedExchange,
-          RateCurveId: selectedCurve?.id,
-          Curve: txtCurve,
-          curve_ob: selectedCurve,
-        }),
-      });
-    })
-    .then(responseMarket => {
-      if (responseMarket.status === 201) {
-        return responseMarket.json();
-      } else {
-        throw new Error(`Error: ${responseMarket.status}`);
-      }
-    })
-    .then(data => console.log(data))
-    .catch(error => console.error("An error occurred:", error));
+  console.log(selectedUnit.name);
+
+  const body = JSON.stringify({
+    "Name": txtName,
+    "Symbol": txtSymbol,
+    "Size": txtSize,
+    "UnitID": selectedUnit.id,
+    "Unit": selectedUnit.name,
+    "Multiplier": txtMultiplier,
+    "ExchangeId": selectedExchange.id,
+    "Exchange": selectedExchange.shortCode,
+    "RateCurveId": selectedCurve.id,
+    "Curve": selectedCurve.name,
+  });
+
+  
+  request.onload = () => {
+    if (request.readyState == 4 && request.status == 201) {
+      console.log(JSON.parse(request.responseText));
+    } else {
+      console.log(`Error: ${request.status}`);
+    }
+  };
+  request.send(body);
 
 }
 
