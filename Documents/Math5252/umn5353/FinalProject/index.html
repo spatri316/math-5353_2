@@ -24,8 +24,8 @@
           <button class = "btn-group">Underlying</button>
           <button id="units_btn" class = "btn-group">Units</button>
           <button id="curves_btn" class = "btn-group">Curves</button>
-          <button class = "btn-group">Rates</button>
-          <button class = "btn-group">Prices</button>
+          <button id="rates_btn" class = "btn-group">Rates</button>
+          <button id="prices_btn" class = "btn-group">Prices</button>
           <button class = "btn-group">Derivatives</button>
           <button class = "btn-group">Trades</button>
         </div>
@@ -153,6 +153,68 @@
               <button id = "btnSaveMarket">Add Market</button>
           </div>
           </div>
+
+          <div id="tableContainerPrices" style="display: none;">
+            <h1 style="font-size:30px;">Prices</h1>
+            <table id="table_all">
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>InstSymbol</th>
+                  <th>Price</th>
+                </tr>
+              <tbody id = "tableBodyPrices"></tbody>
+              </table>
+              <div class="button-container">
+              <button id = "btnRefreshPrices" class = "btn-group-inside">Refresh</button>
+            </div>
+            <div class = "right">
+                <span>Date:</span>
+                <input id = 'txtPriceDate' type = "date"/>
+                <br>
+                <br>
+                <span>Price:</span>
+                <input id = 'txtPricePrice'/>
+                <br>
+                <br>
+                <span>Instrument:</span>
+                <select id = 'txtPriceInstrument'><option disabled selected value> -- select an option -- </option></select>
+                <br>
+                <br>
+                <button id = "btnSavePrice">Add Price</button>
+            </div>
+            </div>
+
+            <div id="tableContainerRates" style="display: none;">
+              <h1 style="font-size:30px;">Rates</h1>
+              <table id="table_all">
+                  <tr>
+                    <th>ID</th>
+                    <th>Tenor(Years)</th>
+                    <th>Rate</th>
+                    <th>Curve</th>
+                  </tr>
+                <tbody id = "tableBodyRates"></tbody>
+                </table>
+                <div class="button-container">
+                <button id = "btnRefreshRates" class = "btn-group-inside">Refresh</button>
+              </div>
+              <div class = "right">
+                  <span>Tenor:</span>
+                  <input id = 'txtRateTenor'>
+                  <br>
+                  <br>
+                  <span>Rate:</span>
+                  <input id = 'txtRateRate'/>
+                  <br>
+                  <br>
+                  <span>Curve:</span>
+                  <select id = 'txtRateCurve'><option disabled selected value> -- select an option -- </option></select>
+                  <br>
+                  <br>
+                  <button id = "btnSaveRate">Add Rate</button>
+              </div>
+              </div>
 
 
     </div>

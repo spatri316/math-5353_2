@@ -94,7 +94,7 @@ namespace FinalProject.Migrations
                     InstSymbolId = table.Column<int>(type: "integer", nullable: false),
                     InstSymbolName = table.Column<string>(type: "text", nullable: false),
                     PriceNum = table.Column<double>(type: "double precision", nullable: false),
-                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -117,7 +117,7 @@ namespace FinalProject.Migrations
                     SymbolId = table.Column<int>(type: "integer", nullable: false),
                     SymbolName = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<double>(type: "double precision", nullable: false),
-                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -278,7 +278,7 @@ namespace FinalProject.Migrations
             migrationBuilder.InsertData(
                 table: "Prices",
                 columns: new[] { "Id", "Date", "InstSymbolId", "InstSymbolName", "PriceNum" },
-                values: new object[] { 1, new DateTimeOffset(new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 1, "CN2023", 75.75 });
+                values: new object[] { 1, new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc), 1, "CN2023", 75.75 });
 
             migrationBuilder.InsertData(
                 table: "Rates",
@@ -288,7 +288,7 @@ namespace FinalProject.Migrations
             migrationBuilder.InsertData(
                 table: "Trades",
                 columns: new[] { "Id", "Date", "Price", "Quantity", "SymbolId", "SymbolName" },
-                values: new object[] { 1, new DateTimeOffset(new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), 30.0, 1.5, 1, "CH2023" });
+                values: new object[] { 1, new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc), 30.0, 1.5, 1, "CH2023" });
 
             migrationBuilder.InsertData(
                 table: "Underlyings",

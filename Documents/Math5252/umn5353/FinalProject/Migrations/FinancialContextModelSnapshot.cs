@@ -161,7 +161,7 @@ namespace FinalProject.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTimeOffset>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("InstSymbolId")
@@ -184,7 +184,7 @@ namespace FinalProject.Migrations
                         new
                         {
                             Id = 1,
-                            Date = new DateTimeOffset(new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Date = new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             InstSymbolId = 1,
                             InstSymbolName = "CN2023",
                             PriceNum = 75.75
@@ -261,7 +261,7 @@ namespace FinalProject.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTimeOffset>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<double>("Price")
@@ -287,7 +287,7 @@ namespace FinalProject.Migrations
                         new
                         {
                             Id = 1,
-                            Date = new DateTimeOffset(new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Date = new DateTime(2022, 11, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             Price = 30.0,
                             Quantity = 1.5,
                             SymbolId = 1,

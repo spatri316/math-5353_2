@@ -1768,7 +1768,7 @@ namespace MyApp
         public string InstSymbolName {get; set;}
         public Instrument? instsymbol {get; set;}
         public double PriceNum {get;set;}
-        public DateTimeOffset Date {get;set;}
+        public DateTime Date {get;set;}
     }
     [Table("Trades")]
     public class Trade
@@ -1779,7 +1779,7 @@ namespace MyApp
         public string SymbolName {get; set;}
         public Instrument? symbol {get; set;}
         public double Price {get; set;}
-        public DateTimeOffset Date {get; set;}
+        public DateTime Date {get; set;}
     }
 
      [Table("Curves")]

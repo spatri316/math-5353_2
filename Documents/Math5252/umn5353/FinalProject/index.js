@@ -12,12 +12,16 @@ document.getElementById("exchange_btn").addEventListener("click", function(){
   var unitsTableContainer = document.getElementById('tableContainerUnits');
   var curvesTableContainer = document.getElementById('tableContainerCurves');
   var marketTableContainer = document.getElementById('tableContainerMarkets');
+  var priceTableContainer = document.getElementById('tableContainerPrices');
+  var ratesTableContainer = document.getElementById('tableContainerRates');
 
   // Show the Exchange table and hide the Units table
   exchangeTableContainer.style.display = 'block';
   unitsTableContainer.style.display = 'none';
   curvesTableContainer.style.display = 'none';
   marketTableContainer.style.display = 'none';
+  priceTableContainer.style.display = 'none';
+  ratesTableContainer.style.display = 'none';
 
   });
 
@@ -26,12 +30,16 @@ document.getElementById("units_btn").addEventListener("click", function(){
   var unitsTableContainer = document.getElementById('tableContainerUnits');
   var curvesTableContainer = document.getElementById('tableContainerCurves');
   var marketTableContainer = document.getElementById('tableContainerMarkets');
+  var priceTableContainer = document.getElementById('tableContainerPrices');
+  var ratesTableContainer = document.getElementById('tableContainerRates');
 
   // Show the Units table and hide the Exchange table
   exchangeTableContainer.style.display = 'none';
   unitsTableContainer.style.display = 'block';
   curvesTableContainer.style.display = 'none';
   marketTableContainer.style.display = 'none';
+  priceTableContainer.style.display = 'none';
+  ratesTableContainer.style.display = 'none';
 
   
   });
@@ -41,12 +49,16 @@ document.getElementById("curves_btn").addEventListener("click", function(){
   var unitsTableContainer = document.getElementById('tableContainerUnits');
   var curvesTableContainer = document.getElementById('tableContainerCurves');
   var marketTableContainer = document.getElementById('tableContainerMarkets');
+  var priceTableContainer = document.getElementById('tableContainerPrices');
+  var ratesTableContainer = document.getElementById('tableContainerRates');
 
   // Show the Units table and hide the Exchange table
   exchangeTableContainer.style.display = 'none';
   unitsTableContainer.style.display = 'none';
   curvesTableContainer.style.display = 'block';
   marketTableContainer.style.display = 'none';
+  priceTableContainer.style.display = 'none';
+  ratesTableContainer.style.display = 'none';
 
   });
 
@@ -55,19 +67,60 @@ document.getElementById("curves_btn").addEventListener("click", function(){
     var unitsTableContainer = document.getElementById('tableContainerUnits');
     var curvesTableContainer = document.getElementById('tableContainerCurves');
     var marketTableContainer = document.getElementById('tableContainerMarkets');
+    var priceTableContainer = document.getElementById('tableContainerPrices');
+    var ratesTableContainer = document.getElementById('tableContainerRates');
   
     // Show the Units table and hide the Exchange table
     exchangeTableContainer.style.display = 'none';
     unitsTableContainer.style.display = 'none';
     curvesTableContainer.style.display = 'none';
     marketTableContainer.style.display = 'block';
+    priceTableContainer.style.display = 'none';
+    ratesTableContainer.style.display = 'none';
   
     });
+
+    document.getElementById("prices_btn").addEventListener("click", function(){
+      var exchangeTableContainer = document.getElementById('tableContainerExchange');
+      var unitsTableContainer = document.getElementById('tableContainerUnits');
+      var curvesTableContainer = document.getElementById('tableContainerCurves');
+      var marketTableContainer = document.getElementById('tableContainerMarkets');
+      var priceTableContainer = document.getElementById('tableContainerPrices');
+      var ratesTableContainer = document.getElementById('tableContainerRates');
+    
+      // Show the Units table and hide the Exchange table
+      exchangeTableContainer.style.display = 'none';
+      unitsTableContainer.style.display = 'none';
+      curvesTableContainer.style.display = 'none';
+      marketTableContainer.style.display = 'none';
+      priceTableContainer.style.display = 'block';
+      ratesTableContainer.style.display = 'none';
+    
+      });
+
+document.getElementById("rates_btn").addEventListener("click", function(){
+  var exchangeTableContainer = document.getElementById('tableContainerExchange');
+  var unitsTableContainer = document.getElementById('tableContainerUnits');
+  var curvesTableContainer = document.getElementById('tableContainerCurves');
+  var marketTableContainer = document.getElementById('tableContainerMarkets');
+  var priceTableContainer = document.getElementById('tableContainerPrices');
+  var ratesTableContainer = document.getElementById('tableContainerRates');
+
+  // Show the Units table and hide the Exchange table
+  exchangeTableContainer.style.display = 'none';
+  unitsTableContainer.style.display = 'none';
+  curvesTableContainer.style.display = 'none';
+  marketTableContainer.style.display = 'none';
+  priceTableContainer.style.display = 'none';
+  ratesTableContainer.style.display = 'block';
+
+  });
   
 getExchanges();
 getUnits();
 getCurves();
 getMarket();
+getPrices();
 
 function getExchanges() {
  
@@ -186,8 +239,6 @@ function postNewUnits() {
   request.send(body);
 
 }
-
-
 
 function getCurves() {
  
@@ -473,6 +524,232 @@ function postNewMarket() {
 
 }
 
+function getPrices() {
+ 
+  let tablebody = document.getElementById("tableBodyPrices");
+  let rowcount = tablebody.rows.length;
+  for(let j = 0; j < rowcount; j++) {
+    tablebody.deleteRow(-1);
+  }
+  let request = new XMLHttpRequest();
+  request.open("GET", "http://localhost:5283/Price/Prices");
+  request.onload = () => {
+    if(request.status === 200) {
+      let values = JSON.parse(request.response);
+      console.log(values)
+      for(let i = 0; i < values.length; i++) {
+        console.log("AM I HERE in prices", values[i].id);
+        var row = tablebody.insertRow(tablebody.rows.length);
+        var idCol = row.insertCell();
+        var dateCol = row.insertCell();
+        var instCol = row.insertCell();
+        var priceCol = row.insertCell();
+        idCol.innerHTML  = values[i].id;
+        dateCol.innerHTML = values[i].date;
+        instCol.innerHTML = values[i].instSymbolName;
+        priceCol.innerHTML  = values[i].priceNum;
+      }
+      this.marketList = values;
+    }
+    else {
+      console.log("LOST");
+      alert("Error getting Exchange Data");
+    }
+    
+  }
+  request.send();
+}
+
+function selectInstrumentPrice() {
+  const xhr = new XMLHttpRequest();
+
+    // Configure it with the GET request to your server endpoint
+    xhr.open("GET", "http://localhost:5283/Price/UniqueInstruments", true);
+
+    // Define the callback function to handle the response
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+          const data = JSON.parse(xhr.responseText);
+          let selectDropdown = document.getElementById("txtPriceInstrument");
+
+          console.log(xhr.responseText);
+
+          selectDropdown.innerHTML = "";
+
+          data.forEach(instrument => {
+              const option = document.createElement("option");
+              option.value = instrument;
+              option.text = instrument;
+              selectDropdown.add(option);
+          });
+      } else {
+          console.error("Error fetching data:", xhr.statusText);
+      }
+  };
+
+    // Handle network errors
+    xhr.onerror = function() {
+      console.error("Network error");
+  };
+
+  xhr.send();
+}
+
+
+function postNewPrice() {
+
+  var selectedInstrument;
+
+  let request_instrument = new XMLHttpRequest();
+  request_instrument.open("GET", "http://localhost:5283/Instrument/Instruments", false);
+  request_instrument.onload = () => {
+    if(request_instrument.status === 200) {
+      instrumentList = JSON.parse(request_instrument.responseText);
+      selectedInstrument = instrumentList.find(instrument => instrument.symbol === document.getElementById("txtPriceInstrument").value);
+      console.log(selectedInstrument);
+    }
+  }
+  request_instrument.send();
+
+  let request = new XMLHttpRequest();
+  request.open("POST", "http://localhost:5283/Price/Prices", true);
+  request.setRequestHeader("Content-Type", "application/json");
+
+  let txtPrice = document.getElementById("txtPricePrice").value;
+  let txtDate= document.getElementById("txtPriceDate").value;
+  //let utcDate = DateTime.SpecifyKind(txtDate.Date, DateTimeKind.utcDate);
+
+  const body = JSON.stringify({
+    "InstSymbolId": selectedInstrument.id,
+    "InstSymbolName": selectedInstrument.symbol,
+    "PriceNum": txtPrice,
+    "Date": txtDate
+  });
+
+  request.onload = () => {
+    if (request.readyState == 4 && request.status == 201) {
+      console.log(JSON.parse(request.responseText));
+    } else {
+      console.log(`Error: ${request.status}`);
+    }
+  };
+  request.send(body);
+
+}
+
+function getRates() {
+ 
+  let tablebody = document.getElementById("tableBodyRates");
+  let rowcount = tablebody.rows.length;
+  for(let j = 0; j < rowcount; j++) {
+    tablebody.deleteRow(-1);
+  }
+  let request = new XMLHttpRequest();
+  request.open("GET", "http://localhost:5283/Rate/Rates");
+  request.onload = () => {
+    if(request.status === 200) {
+      let values = JSON.parse(request.response);
+      console.log(values);
+      for(let i = 0; i < values.length; i++) {
+        var row = tablebody.insertRow(tablebody.rows.length);
+        var idCol = row.insertCell();
+        var tenorCol = row.insertCell();
+        var rateCol = row.insertCell();
+        var curveCol = row.insertCell();
+        idCol.innerHTML  = values[i].id;
+        tenorCol.innerHTML = values[i].tenor;
+        rateCol.innerHTML = values[i].rate;
+        curveCol.innerHTML  = values[i].curveName;
+      }
+    }
+    else {
+      console.log("LOST");
+      alert("Error getting Exchange Data");
+    }
+    
+  }
+  request.send();
+}
+
+function selectCurveRates() {
+  const xhr = new XMLHttpRequest();
+
+    // Configure it with the GET request to your server endpoint
+    xhr.open("GET", "http://localhost:5283/Rate/UniqueCurves", true);
+
+    // Define the callback function to handle the response
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+          const data = JSON.parse(xhr.responseText);
+          let selectDropdown = document.getElementById("txtRateCurve");
+
+          console.log(xhr.responseText);
+
+          selectDropdown.innerHTML = "";
+
+          data.forEach(instrument => {
+              const option = document.createElement("option");
+              option.value = instrument;
+              option.text = instrument;
+              selectDropdown.add(option);
+          });
+      } else {
+          console.error("Error fetching data:", xhr.statusText);
+      }
+  };
+
+    // Handle network errors
+    xhr.onerror = function() {
+      console.error("Network error");
+  };
+
+  xhr.send();
+}
+
+
+function postNewRate() {
+
+  var selectedCurve;
+
+  let request_curve = new XMLHttpRequest();
+  request_curve.open("GET", "http://localhost:5283/Curves/Curves", false);
+  request_curve.onload = () => {
+    if(request_curve.status === 200) {
+      curveList = JSON.parse(request_curve.responseText);
+      selectedCurve = curveList.find(curve => curve.name === document.getElementById("txtRateCurve").value);
+    }
+  }
+  request_curve.send();
+
+  console.log(selectedCurve);
+
+  let request = new XMLHttpRequest();
+  request.open("POST", "http://localhost:5283/Rate/Rates", true);
+  request.setRequestHeader("Content-Type", "application/json");
+
+  let txtTenor  = document.getElementById("txtRateTenor").value;
+  let txtRate = document.getElementById("txtRateRate").value;
+  //let utcDate = DateTime.SpecifyKind(txtDate.Date, DateTimeKind.utcDate);
+
+  const body = JSON.stringify({
+    "Tenor": txtTenor,
+    "rate": txtRate,
+    "RateCurveId": selectedCurve.id,
+    "CurveName": selectedCurve.name
+  });
+
+  request.onload = () => {
+    if (request.readyState == 4 && request.status == 201) {
+      console.log(JSON.parse(request.responseText));
+    } else {
+      console.log(`Error: ${request.status}`);
+    }
+  };
+  request.send(body);
+
+}
+
+
 
 document.getElementById("btnRefreshExchange").addEventListener("click", function() {getExchanges()});
 document.getElementById("btnSaveExchange").addEventListener("click", function() {postNewExchanges()});
@@ -486,8 +763,18 @@ document.getElementById("btnSaveCurve").addEventListener("click", function() {po
 document.getElementById("btnRefreshMarket").addEventListener("click", function() {getMarket()});
 document.getElementById("btnSaveMarket").addEventListener("click", function() {postNewMarket()});
 
+document.getElementById("btnRefreshPrices").addEventListener("click", function() {getPrices()});
+document.getElementById("btnSavePrice").addEventListener("click", function() {postNewPrice()});
+
+document.getElementById("btnRefreshRates").addEventListener("click", function() {getRates()});
+document.getElementById("btnSaveRate").addEventListener("click", function() {postNewRate()});
+
 document.getElementById("txtMarketUnits").addEventListener("click", function() {selectUnitsMarket()});
 document.getElementById("txtMarketExchange").addEventListener("click", function() {selectExchangeMarket()});
 document.getElementById("txtMarketRate").addEventListener("click", function() {selectCurveMarket()});
+
+document.getElementById("txtPriceInstrument").addEventListener("click", function() {selectInstrumentPrice()});
+
+document.getElementById("txtRateCurve").addEventListener("click", function() {selectCurveRates()});
 
 
