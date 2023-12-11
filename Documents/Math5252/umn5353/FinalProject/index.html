@@ -21,13 +21,13 @@
         <div class="button-container">
           <button id="exchange_btn" class="btn-group">Exchange</button>
           <button id="markets_btn" class = "btn-group">Markets</button>
-          <button class = "btn-group">Underlying</button>
+          <button id="underlying_btn" class = "btn-group">Underlying</button>
           <button id="units_btn" class = "btn-group">Units</button>
           <button id="curves_btn" class = "btn-group">Curves</button>
           <button id="rates_btn" class = "btn-group">Rates</button>
           <button id="prices_btn" class = "btn-group">Prices</button>
-          <button class = "btn-group">Derivatives</button>
-          <button class = "btn-group">Trades</button>
+          <button id="derivatives_btn" class = "btn-group">Derivatives</button>
+          <button id="trades_btn" class = "btn-group">Trades</button>
         </div>
     </div>
   
@@ -215,6 +215,47 @@
                   <button id = "btnSaveRate">Add Rate</button>
               </div>
               </div>
+
+              <div id="tableContainerUnderlyings" style="display: none;">
+                <h1 style="font-size:30px;">Underlyings</h1>
+                <table id="table_all">
+                    <tr>
+                      <th>ID</th>
+                      <th>Symbol</th>
+                      <th>Market</th>
+                      <th>Month</th>
+                      <th>Year</th>
+                      <th>Expiration</th>
+                    </tr>
+                  <tbody id = "tableBodyUnderlyings"></tbody>
+                  </table>
+                  <div class="button-container">
+                  <button id = "btnRefreshUnderlying" class = "btn-group-inside">Refresh</button>
+                </div>
+                <div class = "right">
+                    <span>Date:</span>
+                    <input id = 'txtUnderlyingDate' type = "date"/>
+                    <br>
+                    <br>
+                    <span>Month:</span>
+                    <input id = 'txtUnderlyingMonth'/>
+                    <br>
+                    <br>
+                    <span>Year:</span>
+                    <input id = 'txtUnderlyingYear'/>
+                    <br>
+                    <br>
+                    <span>Symbol:</span>
+                    <input id = 'txtUnderlyingSymbol'/>
+                    <br>
+                    <br>
+                    <span>Market:</span>
+                    <select id = 'txtUnderlyingMarket'><option disabled selected value> -- select an option -- </option></select>
+                    <br>
+                    <br>
+                    <button id = "btnSaveUnderlying">Add Underlying</button>
+                </div>
+                </div>
 
 
     </div>

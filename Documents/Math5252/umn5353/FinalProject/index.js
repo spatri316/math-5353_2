@@ -14,6 +14,7 @@ document.getElementById("exchange_btn").addEventListener("click", function(){
   var marketTableContainer = document.getElementById('tableContainerMarkets');
   var priceTableContainer = document.getElementById('tableContainerPrices');
   var ratesTableContainer = document.getElementById('tableContainerRates');
+  var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
 
   // Show the Exchange table and hide the Units table
   exchangeTableContainer.style.display = 'block';
@@ -22,6 +23,7 @@ document.getElementById("exchange_btn").addEventListener("click", function(){
   marketTableContainer.style.display = 'none';
   priceTableContainer.style.display = 'none';
   ratesTableContainer.style.display = 'none';
+  underlyingTableContainer.style.display = 'none';
 
   });
 
@@ -32,6 +34,7 @@ document.getElementById("units_btn").addEventListener("click", function(){
   var marketTableContainer = document.getElementById('tableContainerMarkets');
   var priceTableContainer = document.getElementById('tableContainerPrices');
   var ratesTableContainer = document.getElementById('tableContainerRates');
+  var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
 
   // Show the Units table and hide the Exchange table
   exchangeTableContainer.style.display = 'none';
@@ -40,6 +43,7 @@ document.getElementById("units_btn").addEventListener("click", function(){
   marketTableContainer.style.display = 'none';
   priceTableContainer.style.display = 'none';
   ratesTableContainer.style.display = 'none';
+  underlyingTableContainer.style.display = 'none';
 
   
   });
@@ -51,6 +55,7 @@ document.getElementById("curves_btn").addEventListener("click", function(){
   var marketTableContainer = document.getElementById('tableContainerMarkets');
   var priceTableContainer = document.getElementById('tableContainerPrices');
   var ratesTableContainer = document.getElementById('tableContainerRates');
+  var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
 
   // Show the Units table and hide the Exchange table
   exchangeTableContainer.style.display = 'none';
@@ -59,6 +64,7 @@ document.getElementById("curves_btn").addEventListener("click", function(){
   marketTableContainer.style.display = 'none';
   priceTableContainer.style.display = 'none';
   ratesTableContainer.style.display = 'none';
+  underlyingTableContainer.style.display = 'none';
 
   });
 
@@ -69,6 +75,7 @@ document.getElementById("curves_btn").addEventListener("click", function(){
     var marketTableContainer = document.getElementById('tableContainerMarkets');
     var priceTableContainer = document.getElementById('tableContainerPrices');
     var ratesTableContainer = document.getElementById('tableContainerRates');
+    var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
   
     // Show the Units table and hide the Exchange table
     exchangeTableContainer.style.display = 'none';
@@ -77,6 +84,7 @@ document.getElementById("curves_btn").addEventListener("click", function(){
     marketTableContainer.style.display = 'block';
     priceTableContainer.style.display = 'none';
     ratesTableContainer.style.display = 'none';
+    underlyingTableContainer.style.display = 'none';
   
     });
 
@@ -87,6 +95,7 @@ document.getElementById("curves_btn").addEventListener("click", function(){
       var marketTableContainer = document.getElementById('tableContainerMarkets');
       var priceTableContainer = document.getElementById('tableContainerPrices');
       var ratesTableContainer = document.getElementById('tableContainerRates');
+      var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
     
       // Show the Units table and hide the Exchange table
       exchangeTableContainer.style.display = 'none';
@@ -95,6 +104,7 @@ document.getElementById("curves_btn").addEventListener("click", function(){
       marketTableContainer.style.display = 'none';
       priceTableContainer.style.display = 'block';
       ratesTableContainer.style.display = 'none';
+      underlyingTableContainer.style.display = 'none';
     
       });
 
@@ -105,6 +115,7 @@ document.getElementById("rates_btn").addEventListener("click", function(){
   var marketTableContainer = document.getElementById('tableContainerMarkets');
   var priceTableContainer = document.getElementById('tableContainerPrices');
   var ratesTableContainer = document.getElementById('tableContainerRates');
+  var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
 
   // Show the Units table and hide the Exchange table
   exchangeTableContainer.style.display = 'none';
@@ -113,14 +124,38 @@ document.getElementById("rates_btn").addEventListener("click", function(){
   marketTableContainer.style.display = 'none';
   priceTableContainer.style.display = 'none';
   ratesTableContainer.style.display = 'block';
+  underlyingTableContainer.style.display = 'none';
 
   });
+
+  document.getElementById("underlying_btn").addEventListener("click", function(){
+    var exchangeTableContainer = document.getElementById('tableContainerExchange');
+    var unitsTableContainer = document.getElementById('tableContainerUnits');
+    var curvesTableContainer = document.getElementById('tableContainerCurves');
+    var marketTableContainer = document.getElementById('tableContainerMarkets');
+    var priceTableContainer = document.getElementById('tableContainerPrices');
+    var ratesTableContainer = document.getElementById('tableContainerRates');
+    var underlyingTableContainer = document.getElementById('tableContainerUnderlyings');
+  
+    // Show the Units table and hide the Exchange table
+    exchangeTableContainer.style.display = 'none';
+    unitsTableContainer.style.display = 'none';
+    curvesTableContainer.style.display = 'none';
+    marketTableContainer.style.display = 'none';
+    priceTableContainer.style.display = 'none';
+    ratesTableContainer.style.display = 'none';
+    underlyingTableContainer.style.display = 'block';
+  
+    });
   
 getExchanges();
 getUnits();
 getCurves();
 getMarket();
 getPrices();
+getRates();
+getUnderlying();
+
 
 function getExchanges() {
  
@@ -750,6 +785,128 @@ function postNewRate() {
 }
 
 
+function getUnderlying() {
+ 
+  let tablebody = document.getElementById("tableBodyUnderlyings");
+  let rowcount = tablebody.rows.length;
+  for(let j = 0; j < rowcount; j++) {
+    tablebody.deleteRow(-1);
+  }
+  let request = new XMLHttpRequest();
+  request.open("GET", "http://localhost:5283/Underlying/Underlyings");
+  request.onload = () => {
+    if(request.status === 200) {
+      let values = JSON.parse(request.response);
+      console.log(values);
+      for(let i = 0; i < values.length; i++) {
+        var row = tablebody.insertRow(tablebody.rows.length);
+        var idCol = row.insertCell();
+        var symbolCol = row.insertCell();
+        var marketCol = row.insertCell();
+        var monthCol = row.insertCell();
+        var yearCol = row.insertCell();
+        var expirationCol = row.insertCell();
+        idCol.innerHTML  = values[i].id;
+        symbolCol.innerHTML  = values[i].symbol;
+        marketCol.innerHTML  = values[i].market;
+        monthCol.innerHTML = values[i].month;
+        yearCol.innerHTML  = values[i].year;
+        expirationCol.innerHTML  = values[i].expiration;
+      }
+      this.marketList = values;
+    }
+    else {
+      console.log("LOST");
+      alert("Error getting Exchange Data");
+    }
+    
+  }
+  request.send();
+}
+
+function selectMarketUnderlying() {
+  const xhr = new XMLHttpRequest();
+
+    // Configure it with the GET request to your server endpoint
+    xhr.open("GET", "http://localhost:5283/Underlying/UniqueMarkets", true);
+
+    // Define the callback function to handle the response
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+          const data = JSON.parse(xhr.responseText);
+          let selectDropdown = document.getElementById("txtUnderlyingMarket");
+
+          console.log(xhr.responseText);
+
+          selectDropdown.innerHTML = "";
+
+          data.forEach(instrument => {
+              const option = document.createElement("option");
+              option.value = instrument;
+              option.text = instrument;
+              selectDropdown.add(option);
+          });
+      } else {
+          console.error("Error fetching data:", xhr.statusText);
+      }
+  };
+
+    // Handle network errors
+    xhr.onerror = function() {
+      console.error("Network error");
+  };
+
+  xhr.send();
+}
+
+
+function postNewUnderlying() {
+
+  var selectedMarket;
+
+  let request_market = new XMLHttpRequest();
+  request_market.open("GET", "http://localhost:5283/Market/Markets", false);
+  request_market.onload = () => {
+    if(request_market.status === 200) {
+      marketList = JSON.parse(request_market.responseText);
+      selectedMarket = marketList.find(market => market.name === document.getElementById("txtUnderlyingMarket").value);
+      console.log(selectedMarket);
+    }
+  }
+  request_market.send();
+
+  let request = new XMLHttpRequest();
+  request.open("POST", "http://localhost:5283/Underlying/Underlyings", true);
+  request.setRequestHeader("Content-Type", "application/json");
+
+  let txtMonth = document.getElementById("txtUnderlyingMonth").value;
+  let txtYear = document.getElementById("txtUnderlyingYear").value;
+  let txtDate= document.getElementById("txtUnderlyingDate").value;
+  let txtSymbol = document.getElementById("txtUnderlyingSymbol").value;
+  //let utcDate = DateTime.SpecifyKind(txtDate.Date, DateTimeKind.utcDate);
+
+  const body = JSON.stringify({
+    "MarketId": selectedMarket.id,
+    "Market": selectedMarket.name,
+    "Year": txtYear,
+    "Month": txtMonth,
+    "Expiration": txtDate,
+    "Symbol": txtSymbol
+
+  });
+
+  request.onload = () => {
+    if (request.readyState == 4 && request.status == 201) {
+      console.log(JSON.parse(request.responseText));
+    } else {
+      console.log(`Error: ${request.status}`);
+    }
+  };
+  request.send(body);
+
+}
+
+
 
 document.getElementById("btnRefreshExchange").addEventListener("click", function() {getExchanges()});
 document.getElementById("btnSaveExchange").addEventListener("click", function() {postNewExchanges()});
@@ -769,6 +926,9 @@ document.getElementById("btnSavePrice").addEventListener("click", function() {po
 document.getElementById("btnRefreshRates").addEventListener("click", function() {getRates()});
 document.getElementById("btnSaveRate").addEventListener("click", function() {postNewRate()});
 
+document.getElementById("btnRefreshUnderlying").addEventListener("click", function() {getUnderlying()});
+document.getElementById("btnSaveUnderlying").addEventListener("click", function() {postNewUnderlying()});
+
 document.getElementById("txtMarketUnits").addEventListener("click", function() {selectUnitsMarket()});
 document.getElementById("txtMarketExchange").addEventListener("click", function() {selectExchangeMarket()});
 document.getElementById("txtMarketRate").addEventListener("click", function() {selectCurveMarket()});
@@ -777,4 +937,5 @@ document.getElementById("txtPriceInstrument").addEventListener("click", function
 
 document.getElementById("txtRateCurve").addEventListener("click", function() {selectCurveRates()});
 
+document.getElementById("txtUnderlyingMarket").addEventListener("click", function() {selectMarketUnderlying()});
 
