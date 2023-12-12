@@ -113,6 +113,14 @@ background-color : red;
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
+    background-color: #DB7093;  
+    color: #FFFAF0;
+  }
+
+  #table_all td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
     background-color: #FF1493;
     color: #FFFAF0;
   }

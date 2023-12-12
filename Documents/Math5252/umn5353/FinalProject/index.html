@@ -257,6 +257,124 @@
                 </div>
                 </div>
 
+                <div id="tableContainerDerivates" style="display: none;">
+                  <h1 style="font-size:30px;">Derivatives</h1>
+                  <table id="table_all">
+                      <tr>
+                        <th>ID</th>
+                        <th>Symbol</th>
+                        <th>Market</th>
+                        <th>InstType</th>
+                        <th>UnderlyingMonth</th>
+                        <th>UnderlyingYear</th>
+                        <th>Underlying</th>
+                        <th>Strike</th>
+                        <th>CallPut</th>
+                        <th>Payout</th>
+                        <th>BarrierType</th>
+                        <th>BarrierLevel</th>
+                        <th>Expiration</th>
+                      </tr>
+                    <tbody id = "tableBodyDerivatives"></tbody>
+                    </table>
+                    <div class="button-container">
+                    <button id = "btnRefreshDerivatives" class = "btn-group-inside">Refresh</button>
+                  </div>
+                  <div class = "right">
+                      <span>Expiration:</span>
+                      <input id = 'txtDerivativeDate' type = "date"/>
+                      <br>
+                      <br>
+                      <span>Strike:</span>
+                      <input id = 'txtDerivativeStrike'>
+                      <br>
+                      <br>
+                      <span>Payout:</span>
+                      <input id = 'txtDerivativePayout'/>
+                      <br>
+                      <br>
+                      <span>Symbol:</span>
+                      <input id = 'txtDerivativeSymbol'/>
+                      <br>
+                      <br>
+                      <span>BarrierType:</span>
+                      <input id = 'txtDerivativeBarrierType'/>
+                      <br>
+                      <br>
+                      <span>BarrierLevel:</span>
+                      <input id = 'txtDerivativeBarrierLevel'/>
+                      <br>
+                      <br>
+                      <span>Market:</span>
+                      <select id = 'txtDerivativeMarket'><option disabled selected value> -- select an option -- </option></select>
+                      <br>
+                      <br>
+                      <span>Underlying:</span>
+                      <select id = 'txtDerivativeUnderlying'><option disabled selected value> -- select an option -- </option></select>
+                      <br>
+                      <br>
+                      <span>InstType:</span>
+                      <select id = 'txtDerivativeInstType'><option disabled selected value> -- select an option -- </option>
+                        <option value="EuropeanOption">EuropeanOption</option>
+                        <option value="AsianOption">AsianOption</option>
+                        <option value="DigitalOption">DigitalOption</option>
+                        <option value="LookbackOption">LookbackOption</option>
+                        <option value="BarrierOption">BarrierOption</option>
+                        <option value="RangeOption">RangeOption</option>
+                      </select>
+                      <br>
+                      <br>
+                      <span>CallPut:</span>
+                      <select id = 'txtDerivativeCallPut'><option disabled selected value> -- select an option -- </option>
+                        <option value="call">Call</option>
+                        <option value="put">Put</option>
+                      </select>
+                      <br>
+                      <br>
+                      <button id = "btnSaveDerivative">Add Derivative</button>
+                  </div>
+                  </div>
+
+                  <div id="tableContainerTrades" style="display: none;">
+                    <h1 style="font-size:30px;">Trades</h1>
+                    <table id="table_all">
+                        <tr>
+                          <th>ID</th>
+                          <th>Quantity</th>
+                          <th>Symbol</th>
+                          <th>Price</th>
+                          <th>Trade Date</th>
+                          <th>Market Value</th>
+                          <th>Price</th>
+                          <th>Delta</th>
+                          <th>Gamma</th>
+                          <th>Vega</th>
+                          <th>Theta</th>
+                          <th>Rho</th>
+                        </tr>
+                      <tbody id = "tableBodyTrades"></tbody>
+                      </table>
+                      <div class="button-container">
+                      <button id = "btnRefreshTrades" class = "btn-group-inside">Refresh Trades</button>
+                      <button id = "btnRefreshValues" class = "btn-group-inside">Refresh Values</button>
+                    </div>
+                    <div class = "right">
+                        <span>Quantity:</span>
+                        <input id = 'txtTradeQuantity'/>
+                        <br>
+                        <br>
+                        <span>Price:</span>
+                        <input id = 'txtTradePrice'/>
+                        <br>
+                        <br>
+                        <span>Instrument:</span>
+                        <select id = 'txtTradeInstrument'><option disabled selected value> -- select an option -- </option></select>
+                        <br>
+                        <br>
+                        <button id = "btnSaveTrades">Add Trade</button>
+                    </div>
+                    </div>
+
 
     </div>
   
